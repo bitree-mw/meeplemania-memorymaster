@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Games\Board;
+use App\Games\GameRegistry;
+use App\Games\LeaderboardService;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
+
+class LeaderboardController extends Controller
+{
+    public function __invoke(Request $request, LeaderboardService $leaderboards, GameRegistry $registry): Response
+    {
+        [$board, $search, $page] = self::resolveBoard($request, $registry);
+
+        $leaderboards->ensureSnapshot($board);
+        $result = $leaderboards->page($board, $page, $search);
+        $season = $leaderboards->currentSeason();
+        $user = $request->user();
+
+        return Inertia::render('Leaderboard', [
+            ...self::boardProps($board, $registry),
+            'search' => $search,
+            'rows' => $result['rows'],
+            'meta' => $result['meta'],
+            'podium' => $search ? [] : $leaderboards->podium($board),
+            'me' => $user ? $leaderboards->entryFor($board, $user->id) : null,
+            'totalRanked' => $search ? $leaderboards->totalRanked($board) : $result['meta']['total'],
+            'season' => $season ? ['name' => $season->name, 'ends_on' => $season->ends_on->toDateString()] : null,
+        ]);
+    }
+
+    /** @return array{0: Board, 1: ?string, 2: int} */
+    public static function resolveBoard(Request $request, GameRegistry $registry): array
+    {
+        $durations = config('games.platform.timed_durations');
+
+        $data = $request->validate([
+            'game' => ['nullable', Rule::in(['all', ...$registry->slugs()])],
+            'board' => ['nullable', Rule::in(array_unique([...Board::GAME_CATEGORIES, ...Board::PLATFORM_CATEGORIES]))],
+            'duration' => ['nullable', 'integer', Rule::in($durations)],
+            'search' => ['nullable', 'string', 'max:24'],
+            'page' => ['nullable', 'integer', 'min:1', 'max:10000'],
+        ]);
+
+        $game = ($data['game'] ?? 'all') === 'all' ? null : $registry->game($data['game']);
+        $allowed = $game ? Board::GAME_CATEGORIES : Board::PLATFORM_CATEGORIES;
+        $category = in_array($data['board'] ?? null, $allowed, true) ? $data['board'] : ($game ? 'level' : 'all_time');
+        $duration = $category === 'timed' ? (int) ($data['duration'] ?? $durations[0]) : null;
+
+        return [
+            new Board($game, $category, $duration),
+            trim((string) ($data['search'] ?? '')) ?: null,
+            (int) ($data['page'] ?? 1),
+        ];
+    }
+
+    public static function boardProps(Board $board, GameRegistry $registry): array
+    {
+        $categories = $board->isPlatform() ? Board::PLATFORM_CATEGORIES : Board::GAME_CATEGORIES;
+
+        return [
+            'games' => $registry->catalogue(),
+            'game' => $board->game?->slug ?? 'all',
+            'board' => $board->category,
+            'duration' => $board->duration,
+            'durations' => config('games.platform.timed_durations'),
+            'categories' => array_map(fn ($c) => ['key' => $c, 'label' => Board::LABELS[$c]], $categories),
+            'label' => $board->label(),
+            'rule' => $board->rule(),
+        ];
+    }
+}

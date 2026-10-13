@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Meeple Mania: Memory Master - Round Complete</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            arena: '#FAF7F0',
+            brandOrange: '#F59E0B',
+            brandOrangeDark: '#D97706',
+            brandYellowPill: '#FEF3C7',
+            brandTextMuted: '#9CA3AF',
+            brandNavy: '#1E293B',
+            brandGreen: '#10B981',
+            brandEmerald: '#059669',
+          },
+          boxShadow: {
+            'tactile-card': '0 12px 28px -4px rgba(100, 116, 139, 0.08), 0 4px 10px -2px rgba(100, 116, 139, 0.04)',
+            'tactile-btn': '0 4px 0 0 #D97706',
+            'tactile-btn-active': '0 1px 0 0 #D97706',
+            'tactile-soft': '0 8px 20px -3px rgba(0, 0, 0, 0.04)',
+          },
+          borderRadius: {
+            '3xl': '1.75rem',
+            '4xl': '2.25rem',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for Typography & Tactile Accents -->
+<style data-purpose="custom-typography-and-effects">
+    body {
+      background-color: #FAF7F0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tactile-primary-btn {
+      transition: all 0.15s ease-out;
+      box-shadow: 0 4px 0 0 #D97706, 0 10px 15px -3px rgba(245, 158, 11, 0.25);
+    }
+    .tactile-primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 0 #D97706, 0 12px 18px -3px rgba(245, 158, 11, 0.3);
+    }
+    .tactile-primary-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 0 #D97706;
+    }
+    .speech-bubble-tail::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 12px;
+      height: 12px;
+      background-color: #FFFFFF;
+      border-right: 1px solid #F1F5F9;
+      border-bottom: 1px solid #F1F5F9;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-arena text-brandNavy flex flex-col justify-between items-center py-6 px-4 selection:bg-amber-100 select-none">
+<!-- BEGIN: FloatingHeaderBar -->
+<header class="w-full max-w-xl mx-auto flex items-center justify-between bg-white px-5 py-3.5 rounded-full shadow-tactile-soft border border-stone-100/80" data-purpose="top-navigation-bar">
+<!-- Brand Identity Logo & Name -->
+<div class="flex items-center gap-3">
+<div class="relative w-10 h-10 rounded-full bg-amber-100/60 p-0.5 flex items-center justify-center border border-amber-200/50 shadow-inner overflow-hidden">
+<img alt="Meeple Mascot" class="w-8 h-8 object-contain scale-110 translate-y-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqc6T3zp739WdQ_yvovcd1Z08fEXQeu-VHaMkppbxRg_MH5BtIKKM3vcBYvL3dXgEP4GqlWCQy73A3fw0Qjn-HsuPfHIWRIbMxpRb1xHZrwnKFo7G7R1-hooY2sG7rbKLnZsvpDPLCNIiKD-fmwTnSx1LwB5qFoK6J--L9SCF1ksBm5cPdj2jYRUG0iGxaZRczeoinDJ4Tw7Znt_3eRTKcaOwGAn9nM2EHpvUiIUC4sdUesvPTrG4Gf_66QkkPekQ9qLM"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5 leading-none">
+<span class="font-bold text-base tracking-tight text-slate-800">Meeple Mania</span>
+<span class="bg-amber-400/90 text-white font-extrabold text-[10px] tracking-wider px-1.5 py-0.5 rounded-full uppercase">MINI</span>
+</div>
+<p class="text-xs font-medium text-slate-400 mt-0.5">Memory Master</p>
+</div>
+</div>
+<!-- Right Badges & Controls -->
+<div class="flex items-center gap-2.5">
+<!-- Streak Pill Badge -->
+<div class="bg-stone-50 border border-stone-200/80 px-3 py-1.5 rounded-full flex items-center gap-1 text-xs font-bold text-slate-700 shadow-sm" data-purpose="streak-pill">
+<span class="text-amber-500">🔥</span>
+<span>4 Streak</span>
+</div>
+<!-- Help / Info Button -->
+<button aria-label="Game Help" class="w-8 h-8 rounded-full border border-stone-200/80 bg-white flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-stone-50 transition-colors shadow-sm text-xs font-semibold" type="button">
+        ?
+      </button>
+</div>
+</header>
+<!-- END: FloatingHeaderBar -->
+<!-- BEGIN: CentralResultsContainer -->
+<main class="w-full max-w-md my-6 flex flex-col items-center">
+<!-- Mascot Presentation & Celebration Bubble -->
+<div class="flex flex-col items-center mb-1 relative w-full" data-purpose="celebration-hero">
+<!-- Playful Speech Bubble -->
+<div class="relative bg-white border border-slate-100 shadow-tactile-soft px-5 py-2.5 rounded-2xl speech-bubble-tail mb-4 text-center max-w-xs">
+<p class="text-xs font-semibold text-slate-700 tracking-normal leading-relaxed">
+          "Incredible reflexes! You crushed <span class="text-amber-600 font-bold">Level 8</span>!"
+        </p>
+</div>
+<!-- Floating 3D Mascot -->
+<div class="w-24 h-28 relative flex items-center justify-center -mb-3 z-10 filter drop-shadow-md">
+<img alt="Celebrating Meeple" class="w-full h-full object-contain object-bottom hover:scale-105 transition-transform duration-300" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqc6T3zp739WdQ_yvovcd1Z08fEXQeu-VHaMkppbxRg_MH5BtIKKM3vcBYvL3dXgEP4GqlWCQy73A3fw0Qjn-HsuPfHIWRIbMxpRb1xHZrwnKFo7G7R1-hooY2sG7rbKLnZsvpDPLCNIiKD-fmwTnSx1LwB5qFoK6J--L9SCF1ksBm5cPdj2jYRUG0iGxaZRczeoinDJ4Tw7Znt_3eRTKcaOwGAn9nM2EHpvUiIUC4sdUesvPTrG4Gf_66QkkPekQ9qLM"/>
+</div>
+</div>
+<!-- Main Results Card -->
+<div class="w-full bg-white rounded-4xl p-6 sm:p-7 shadow-tactile-card border border-stone-100 text-center flex flex-col items-center relative overflow-hidden" data-purpose="score-summary-card">
+<!-- Top Success Status Pill -->
+<div class="inline-flex items-center gap-1.5 bg-brandYellowPill text-amber-800 text-xs font-bold px-3.5 py-1 rounded-full mb-3 shadow-xs">
+<span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+<span>Level 8 Cleared!</span>
+</div>
+<!-- Main Headline Title -->
+<h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-800 mb-1">
+        Awesome Memory!
+      </h1>
+<p class="text-xs sm:text-sm text-slate-400 font-medium mb-6">
+        Pattern memorized and repeated flawlessly
+      </p>
+<!-- 3-Column Performance Stats Grid -->
+<div class="w-full grid grid-cols-3 gap-2.5 sm:gap-3 py-4 px-2 bg-stone-50/80 rounded-2xl border border-stone-100/90 mb-5" data-purpose="performance-statistics">
+<!-- Stat Item 1: Score -->
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Final Score</span>
+<div class="mt-1 flex items-baseline gap-0.5">
+<span class="text-lg sm:text-xl font-black text-amber-500">4,850</span>
+</div>
+<span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded-md mt-0.5">+650 bonus</span>
+</div>
+<!-- Stat Item 2: Sequence Length -->
+<div class="flex flex-col items-center border-x border-stone-200/60 px-1">
+<span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Sequence</span>
+<div class="mt-1 flex items-baseline gap-0.5">
+<span class="text-lg sm:text-xl font-black text-slate-800">8</span>
+<span class="text-xs font-bold text-slate-400">Tiles</span>
+</div>
+<span class="text-[10px] font-semibold text-slate-400 mt-0.5">100% Accuracy</span>
+</div>
+<!-- Stat Item 3: Clear Speed -->
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Speed</span>
+<div class="mt-1 flex items-baseline gap-0.5">
+<span class="text-lg sm:text-xl font-black text-emerald-500">3.4<span class="text-xs">s</span></span>
+</div>
+<span class="text-[10px] font-bold text-amber-600 flex items-center gap-0.5 mt-0.5">
+            Fast Pace ⚡
+          </span>
+</div>
+</div>
+<!-- Leaderboard Impact Ticker Pill -->
+<div class="w-full bg-amber-50/70 border border-amber-200/50 rounded-xl py-2 px-3 flex items-center justify-center gap-2 mb-6 text-xs text-amber-900 font-medium">
+<span class="text-sm">🎉</span>
+<span>New Personal Best! Climbed <strong class="font-bold text-emerald-600">+18 spots</strong> to Rank <strong class="font-bold">#124</strong>!</span>
+</div>
+<!-- Action Buttons Stack -->
+<div class="w-full flex flex-col gap-2.5" data-purpose="screen-action-buttons">
+<!-- Primary Tactile Button -->
+<button class="tactile-primary-btn w-full bg-brandOrange text-white font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 text-base active:translate-y-0.5 transition-all" type="button">
+<svg class="w-5 h-5 fill-current" viewbox="0 0 24 24">
+<path d="M8 5v14l11-7z"></path>
+</svg>
+<span>Next Level (Level 9)</span>
+</button>
+<!-- Secondary Clean Button & Tertiary Small Replay Action -->
+<div class="grid grid-cols-5 gap-2 w-full mt-0.5">
+<button class="col-span-4 bg-white border border-stone-200/90 hover:bg-stone-50 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-xs sm:text-sm shadow-xs transition-colors flex items-center justify-center gap-1.5" type="button">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>View Leaderboard Rank</span>
+</button>
+<button aria-label="Replay Level" class="col-span-1 bg-white border border-stone-200/90 hover:bg-stone-50 text-slate-600 font-semibold py-2.5 rounded-xl text-xs shadow-xs transition-colors flex items-center justify-center" title="Replay Level" type="button">
+<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- END: CentralResultsContainer -->
+<!-- BEGIN: BottomPillNavigationBar -->
+<footer class="w-full max-w-sm mx-auto" data-purpose="footer-navigation">
+<nav aria-label="Bottom Navigation" class="bg-white rounded-full px-3 py-2 shadow-tactile-soft border border-stone-100 flex items-center justify-between">
+<!-- Play Tab (Active State Matching Screenshot) -->
+<a aria-current="page" class="flex items-center gap-2 bg-brandOrange text-white font-bold text-xs py-2 px-5 rounded-full shadow-sm transition-all" href="#">
+<svg class="w-3.5 h-3.5 fill-current" viewbox="0 0 24 24">
+<path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm4-3c-.83 0-1.5-.67-1.5-1.5S18.67 9 19.5 9s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"></path>
+</svg>
+<span>Play</span>
+</a>
+<!-- Challenge Tab -->
+<a class="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium text-xs py-2 px-3 rounded-full transition-colors" href="#">
+<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Challenge</span>
+</a>
+<!-- Rankings Tab -->
+<a class="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium text-xs py-2 px-3 rounded-full transition-colors" href="#">
+<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Rankings</span>
+</a>
+<!-- Rules Tab -->
+<a class="flex items-center gap-1.5 text-slate-600 hover:text-slate-900 font-medium text-xs py-2 px-3 rounded-full transition-colors" href="#">
+<svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Rules</span>
+</a>
+</nav>
+</footer>
+<!-- END: BottomPillNavigationBar -->
+</body></html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Meeple Mania: Memory Master</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700&family=Rubik:wght@600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@100..900&family=Rubik:wght@100..900&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-fixed-dim": "#4edea3",
+            "tertiary-container": "#002113",
+            "on-tertiary-container": "#009668",
+            "secondary-fixed": "#ffddb8",
+            "primary": "#000000",
+            "surface": "#fcf9f2",
+            "outline": "#74777d",
+            "on-surface-variant": "#44474c",
+            "surface-container-highest": "#e5e2db",
+            "on-secondary-container": "#684000",
+            "primary-fixed-dim": "#bac8dc",
+            "on-primary-fixed-variant": "#3a4859",
+            "background": "#fcf9f2",
+            "on-background": "#1c1c18",
+            "on-error": "#ffffff",
+            "outline-variant": "#c4c6cc",
+            "surface-container-high": "#ebe8e1",
+            "error": "#ba1a1a",
+            "surface-tint": "#525f71",
+            "inverse-primary": "#bac8dc",
+            "surface-dim": "#dcdad3",
+            "on-primary": "#ffffff",
+            "on-primary-fixed": "#0f1c2c",
+            "on-secondary-fixed-variant": "#653e00",
+            "on-secondary": "#ffffff",
+            "surface-container-low": "#f6f3ec",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed": "#2a1700",
+            "inverse-on-surface": "#f3f0ea",
+            "on-tertiary-fixed-variant": "#005236",
+            "inverse-surface": "#31312c",
+            "secondary-container": "#fea619",
+            "on-error-container": "#93000a",
+            "on-tertiary-fixed": "#002113",
+            "on-surface": "#1c1c18",
+            "secondary": "#855300",
+            "surface-variant": "#e5e2db",
+            "error-container": "#ffdad6",
+            "primary-container": "#0f1c2c",
+            "primary-fixed": "#d6e4f9",
+            "on-tertiary": "#ffffff",
+            "tertiary": "#000000",
+            "surface-container": "#f0eee7",
+            "tertiary-fixed": "#6ffbbe",
+            "secondary-fixed-dim": "#ffb95f",
+            "surface-bright": "#fcf9f2",
+            "on-primary-container": "#778598"
+          },
+          "borderRadius": {
+            "DEFAULT": "1rem",
+            "lg": "2rem",
+            "xl": "3rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "margin": "1rem",
+            "margin-desktop": "2rem",
+            "space-xs": "0.25rem",
+            "space-xl": "2.25rem",
+            "gutter": "1rem",
+            "gutter-desktop": "1.5rem",
+            "space-sm": "0.5rem"
+          },
+          "fontFamily": {
+            "display-hero-mobile": ["Rubik"],
+            "headline-lg-mobile": ["Rubik"],
+            "label-lg": ["Rubik"],
+            "label-sm": ["Rubik"],
+            "headline-sm": ["Rubik"],
+            "headline-lg": ["Rubik"],
+            "label-md": ["Rubik"],
+            "title-md": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "display-hero": ["Rubik"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Rubik"]
+          },
+          "fontSize": {
+            "display-hero-mobile": ["36px", { "lineHeight": "42px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "headline-lg-mobile": ["26px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "label-lg": ["15px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "headline-sm": ["20px", { "lineHeight": "26px", "fontWeight": "600" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "label-md": ["13px", { "lineHeight": "16px", "letterSpacing": "0.03em", "fontWeight": "700" }],
+            "title-md": ["18px", { "lineHeight": "24px", "fontWeight": "700" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+            "display-hero": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "500" }],
+            "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+            "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "700" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #fcf9f2;
+        color: #1c1c18;
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+    .tactile-plinth {
+      box-shadow: 0 4px 0 #684000;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .tactile-plinth:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #684000;
+    }
+    .tactile-chip {
+      box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+    }
+  </style>
+<meta content="web_standard" name="shell-type"/>
+</head>
+<body class="bg-background text-on-surface antialiased">
+<!-- Header Navigation -->
+<header class="fixed top-0 left-0 right-0 z-40 bg-surface/90 backdrop-blur-md">
+<div class="h-16 max-w-5xl mx-auto px-margin flex items-center justify-between">
+<!-- Brand Logo & Identity -->
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-full bg-secondary-fixed flex items-center justify-center p-space-xs overflow-hidden shadow-sm flex-shrink-0">
+<img alt="Meeple Mania Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQIWEI5o9zJqWsC661xtACAWNaMRH_lGtS660aQGMY06_Bop45sI3dkwakrCE2g0uogHRljKJ4hKmjiAMGlEe7y4Su_o-PogmotABhD4BxovLnFDzGed3DL-FgaqgLhkqF8J0FMBnIOEoIdRI6wpEFkdBLqNPYiwYa3GXXhPmRJyQprfLGDd1gx5OkkDAJ4Y9A-oS9pNeChDm6A5_Bidzgf3jZjlyextYfEnIdSoQifB4BtoTu_hWk7G3x7BOAETGL_Rc"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface leading-none tracking-tight">Meeple Mania</span>
+<span class="font-label-sm text-label-sm px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-fixed leading-none">PRO</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-none mt-0.5">Memory Master Arena</p>
+</div>
+</div>
+<!-- Desktop Route Navigation Bar -->
+<nav class="hidden md:flex items-center gap-space-sm px-space-sm py-1.5 rounded-full bg-surface-container-high" data-active-classes="bg-surface-container-lowest text-on-surface shadow-xs font-bold">
+<a aria-current="page" class="px-space-md py-1.5 rounded-full transition-all bg-surface-container-lowest text-on-surface shadow-xs font-bold" data-path="play" href="#">Arena</a>
+<a class="px-space-md py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all" data-path="challenge" href="#">Duel</a>
+<a class="px-space-md py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all" data-path="leaderboard" href="#">Hall of Fame</a>
+<a class="px-space-md py-1.5 rounded-full font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-all" data-path="rules" href="#">Rulebook</a>
+</nav>
+<!-- Persistent Quick Controls: Streak Pill + Audio Toggle -->
+<div class="flex items-center gap-space-sm">
+<div class="tactile-chip flex items-center gap-1 px-3 py-1.5 rounded-full bg-surface-container border border-surface-container-highest">
+<span class="material-symbols-outlined text-secondary-container text-[18px]">local_fire_department</span>
+<span class="font-label-md text-label-md text-on-surface" id="streakDisplay">3 Streak</span>
+</div>
+<button aria-label="Toggle Sound Effects" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center transition-colors shadow-xs" id="audioToggleBtn">
+<span class="material-symbols-outlined text-[20px]">volume_up</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Playfield Slot with Exact Buffer pt-16 -->
+<main class="pt-16 pb-28 max-w-5xl mx-auto px-margin min-h-screen flex flex-col">
+<div class="flex flex-col w-full">
+<!-- HUD Overview Strip -->
+<div class="w-full flex flex-col md:flex-row items-center justify-between gap-space-md mb-space-lg">
+<!-- Active Stage Badge Pill -->
+<div class="flex items-center gap-space-sm bg-secondary-fixed text-on-secondary-fixed px-space-md py-1.5 rounded-full shadow-sm">
+<span class="material-symbols-outlined text-secondary text-[20px] animate-spin" style="animation-duration: 4s;">autorenew</span>
+<span class="font-label-md text-label-md tracking-wide uppercase">Round 1: Watch Sequence</span>
+<span class="w-2 h-2 rounded-full bg-error animate-ping ml-1"></span>
+</div>
+<!-- Gameplay Stat Metrics -->
+<div class="flex items-center gap-space-sm">
+<!-- Metric: Level -->
+<div class="bg-surface-container px-space-md py-1.5 rounded-full shadow-sm flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Level</span>
+<span class="font-headline-sm text-headline-sm text-on-surface font-bold">4</span>
+</div>
+<!-- Metric: Score -->
+<div class="bg-surface-container px-space-md py-1.5 rounded-full shadow-sm flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Score</span>
+<span class="font-headline-sm text-headline-sm text-secondary-container font-extrabold">1,450</span>
+</div>
+<!-- Metric: Sequence Counter -->
+<div class="bg-primary-container text-on-primary px-space-md py-1.5 rounded-full shadow-md flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-tertiary-fixed">visibility</span>
+<span class="font-label-md text-label-md tracking-tight">Step <strong class="text-secondary-fixed">2</strong> of 4</span>
+</div>
+</div>
+</div>
+<!-- Coach Mascot Guidance Callout -->
+<div class="w-full bg-surface-container-low rounded-xl p-space-md shadow-sm mb-space-lg relative overflow-hidden flex flex-col sm:flex-row items-center gap-space-md">
+<!-- Accent ambient glow backdrop -->
+<div class="absolute -right-8 -bottom-8 w-48 h-48 bg-secondary-fixed-dim/30 rounded-full blur-2xl pointer-events-none"></div>
+<!-- Coach Meeple Avatar Badge -->
+<div class="relative flex-shrink-0">
+<div class="w-16 h-16 rounded-full bg-secondary-container p-1 shadow-md flex items-center justify-center overflow-hidden">
+<img alt="Meeple Mania 3D Mascot Coach" class="w-full h-full object-cover object-top scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbtm1kB_bi9zRJvjLcKl8ZQJtTnqPjdx8a6TTHiYnaLwoyAf2IGzFdvDuuxFQsAamjRT4jknC6DDFVwDSDj-AOgevL-u-zRM-6HNpi2VNuFz0Fcyx4dMPXL00WymIddyTpLW6CB0OsOnz6kT2PAFcREu7qfsPctK4NDGKj1ACGyIej5AbuN4pfx0Hx5HJvORUBxjhcMXKDUzA6eBU3D3qOOsHi27V4oHD1NsQje5ZOIE-NPFezC3AuQ1fDkegVpmzmZ00"/>
+</div>
+<div class="absolute -bottom-1 -right-1 bg-primary text-on-primary rounded-full p-1 shadow">
+<span class="material-symbols-outlined text-[14px]">sports</span>
+</div>
+</div>
+<!-- Speech & Audio Waveform Bubble -->
+<div class="flex-1 text-center sm:text-left z-10">
+<div class="flex items-center justify-center sm:justify-start gap-2 mb-1">
+<span class="font-headline-sm text-headline-sm text-on-surface">Coach Meeple</span>
+<span class="font-label-sm text-label-sm bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded-full">BROADCASTING</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+        “Keep your eyes peeled! Remember tile <span class="text-error font-bold text-headline-sm">#2</span>!”
+      </p>
+</div>
+<!-- Live Audio Tone Visualizer -->
+<div class="flex items-center gap-1 bg-surface-container px-3 py-2 rounded-full flex-shrink-0 z-10 shadow-inner">
+<span class="material-symbols-outlined text-error text-[20px] animate-pulse">volume_up</span>
+<div class="flex items-end gap-1 h-5 px-1">
+<div class="w-1 bg-error rounded-full animate-bounce" style="height: 60%; animation-delay: 0.1s;"></div>
+<div class="w-1 bg-error rounded-full animate-bounce" style="height: 100%; animation-delay: 0.25s;"></div>
+<div class="w-1 bg-error rounded-full animate-bounce" style="height: 45%; animation-delay: 0.15s;"></div>
+<div class="w-1 bg-error rounded-full animate-bounce" style="height: 85%; animation-delay: 0.3s;"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-mono">Tone C#</span>
+</div>
+</div>
+<!-- Main 2x2 Interactive Card Arena -->
+<div class="w-full max-w-2xl mx-auto grid grid-cols-2 gap-space-md sm:gap-space-lg mb-space-xl">
+<!-- Tile 1: Crown Meeple (Standby / Dimmed) -->
+<div class="aspect-square rounded-lg bg-surface-container-high/60 p-space-md flex flex-col justify-between items-center text-center opacity-60 shadow-sm transition-all hover:opacity-75">
+<div class="w-full flex items-center justify-between">
+<span class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full">#1 AMBER</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">lock</span>
+</div>
+<!-- Crown Icon Graphic -->
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-secondary-fixed/50 flex items-center justify-center p-3 shadow-inner">
+<svg class="w-full h-full text-secondary" fill="currentColor" viewbox="0 0 24 24">
+<path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z"></path>
+</svg>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Crown Meeple</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Standby</span>
+</div>
+</div>
+<!-- Tile 2: FLASHING ACTIVE TILE (Ruby Dice) -->
+<div class="aspect-square rounded-lg bg-error-container p-space-md flex flex-col justify-between items-center text-center shadow-xl relative scale-105 transition-all">
+<!-- Outer Pulsing Glow Halos -->
+<div class="absolute inset-0 rounded-lg bg-error/20 animate-ping pointer-events-none"></div>
+<div class="absolute -top-3 bg-error text-on-error font-label-md text-label-md px-3 py-1 rounded-full shadow-lg flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">flare</span>
+<span>FLASH #2 ACTIVE</span>
+</div>
+<div class="w-full flex items-center justify-between mt-1">
+<span class="font-label-sm text-label-sm bg-on-error text-error px-2 py-0.5 rounded-full font-bold shadow-xs">#2 RUBY</span>
+<span class="font-label-sm text-label-sm bg-on-error/80 text-on-error-container px-2 py-0.5 rounded-full font-mono font-bold">Hz 277</span>
+</div>
+<!-- 3D Ruby Dice Graphic -->
+<div class="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+<!-- Ambient radial glow -->
+<div class="absolute inset-0 bg-error/40 rounded-full blur-xl animate-pulse"></div>
+<div class="relative w-20 h-20 sm:w-24 sm:h-24 bg-error text-on-error rounded-xl shadow-2xl flex items-center justify-center p-3 transform rotate-3">
+<svg class="w-full h-full text-on-error drop-shadow" fill="currentColor" viewbox="0 0 24 24">
+<rect height="18" opacity="0.95" rx="4" width="18" x="3" y="3"></rect>
+<!-- 5 Pip Pattern -->
+<circle cx="7" cy="7" fill="#ffdad6" r="1.5"></circle>
+<circle cx="17" cy="7" fill="#ffdad6" r="1.5"></circle>
+<circle cx="12" cy="12" fill="#ffdad6" r="1.8"></circle>
+<circle cx="7" cy="17" fill="#ffdad6" r="1.5"></circle>
+<circle cx="17" cy="17" fill="#ffdad6" r="1.5"></circle>
+</svg>
+<!-- Sparkle particles -->
+<span class="material-symbols-outlined text-[16px] text-white absolute -top-2 -right-2 animate-bounce">star</span>
+</div>
+</div>
+<div class="mb-1">
+<p class="font-headline-md text-headline-md text-on-error-container font-extrabold tracking-tight">Ruby Dice</p>
+<span class="font-label-sm text-label-sm text-error font-bold flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-[14px]">graphic_eq</span>
+          Broadcasting Tone
+        </span>
+</div>
+</div>
+<!-- Tile 3: Jade Shield (Standby / Dimmed) -->
+<div class="aspect-square rounded-lg bg-surface-container-high/60 p-space-md flex flex-col justify-between items-center text-center opacity-60 shadow-sm transition-all hover:opacity-75">
+<div class="w-full flex items-center justify-between">
+<span class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full">#3 EMERALD</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">lock</span>
+</div>
+<!-- Shield Icon Graphic -->
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-tertiary-fixed-dim/40 flex items-center justify-center p-3 shadow-inner">
+<svg class="w-full h-full text-on-tertiary-container" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 1L3 5V11C3 16.55 6.84 21.74 12 23C17.16 21.74 21 16.55 21 11V5L12 1ZM10 16.5L6 12.5L7.41 11.09L10 13.67L16.59 7.09L18 8.5L10 16.5Z"></path>
+</svg>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Jade Shield</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Standby</span>
+</div>
+</div>
+<!-- Tile 4: Sapphire Star (Standby / Dimmed) -->
+<div class="aspect-square rounded-lg bg-surface-container-high/60 p-space-md flex flex-col justify-between items-center text-center opacity-60 shadow-sm transition-all hover:opacity-75">
+<div class="w-full flex items-center justify-between">
+<span class="font-label-sm text-label-sm bg-surface-container text-on-surface-variant px-2 py-0.5 rounded-full">#4 SAPPHIRE</span>
+<span class="material-symbols-outlined text-outline-variant text-[18px]">lock</span>
+</div>
+<!-- Sapphire Star Icon Graphic -->
+<div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary-fixed-dim/40 flex items-center justify-center p-3 shadow-inner">
+<svg class="w-full h-full text-on-primary-fixed-variant" fill="currentColor" viewbox="0 0 24 24">
+<path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z"></path>
+</svg>
+</div>
+<div>
+<p class="font-headline-sm text-headline-sm text-on-surface">Sapphire Star</p>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Standby</span>
+</div>
+</div>
+</div>
+<!-- Sequence Progress & Lock Controller Bar -->
+<div class="w-full max-w-xl mx-auto flex flex-col items-center gap-space-md">
+<!-- Visual Sequence Segments Indicator -->
+<div class="flex items-center gap-space-sm bg-surface-container px-space-lg py-space-sm rounded-full shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mr-1">Playback:</span>
+<!-- Step 1: Finished -->
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded-full">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-container"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-mono">1</span>
+</div>
+<!-- Step 2: Currently Active -->
+<div class="flex items-center gap-1.5 bg-error text-on-error px-3 py-1 rounded-full shadow-sm scale-110 animate-pulse">
+<span class="w-2.5 h-2.5 rounded-full bg-white"></span>
+<span class="font-label-sm text-label-sm font-mono font-bold">2</span>
+</div>
+<!-- Step 3: Pending -->
+<div class="flex items-center gap-1.5 bg-surface-container-high px-2 py-1 rounded-full opacity-60">
+<span class="w-2.5 h-2.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">3</span>
+</div>
+<!-- Step 4: Pending -->
+<div class="flex items-center gap-1.5 bg-surface-container-high px-2 py-1 rounded-full opacity-60">
+<span class="w-2.5 h-2.5 rounded-full bg-outline-variant"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-mono">4</span>
+</div>
+</div>
+<!-- Locked Status Banner -->
+<div class="w-full bg-surface-container-highest/80 rounded-full py-2 px-space-md flex items-center justify-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+<p class="font-body-sm text-body-sm text-center">
+        Inputs temporarily locked. Tap tiles only after the sequence ends!
+      </p>
+</div>
+<!-- Playback Control Actions -->
+<div class="flex items-center justify-between w-full max-w-md gap-space-md pt-space-xs">
+<!-- Speed selector toggle -->
+<button class="flex items-center gap-1.5 px-space-md py-2 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md shadow-xs transition-colors">
+<span class="material-symbols-outlined text-[18px] text-secondary">speed</span>
+<span>Speed: <strong>1.0x</strong></span>
+</button>
+<!-- Broadcast Progress Display Button -->
+<div class="flex-1 flex items-center justify-center gap-2 px-space-md py-2.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-md opacity-90 cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px] text-secondary-container animate-spin">cyclone</span>
+<span>Sequence Playing...</span>
+</div>
+<!-- Volume audio cue toggle -->
+<button aria-label="Pattern Pitch Settings" class="w-10 h-10 rounded-full bg-surface-container hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface flex items-center justify-center shadow-xs transition-colors">
+<span class="material-symbols-outlined text-[20px]">music_note</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Polished Floating Bottom Navigation Dock -->
+<footer class="fixed bottom-0 left-0 right-0 z-40 p-space-md pointer-events-none flex justify-center">
+<div class="pointer-events-auto w-full max-w-md bg-surface-container-lowest/95 backdrop-blur-md rounded-full p-1.5 shadow-xl border border-surface-container-high flex items-center justify-between gap-1">
+<!-- Tab: Arena / Play -->
+<a class="flex-1 py-2 px-2 rounded-full bg-secondary-container text-on-secondary-fixed tactile-plinth font-label-md text-label-md flex flex-col items-center justify-center gap-0.5" data-path="play" href="#">
+<span class="material-symbols-outlined text-[20px]">sports_esports</span>
+<span class="text-[11px] font-bold leading-none">Play</span>
+</a>
+<!-- Tab: Duel / Challenge -->
+<a class="flex-1 py-2 px-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md flex flex-col items-center justify-center gap-0.5 transition-colors" data-path="challenge" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+<span class="text-[11px] font-bold leading-none">Duel</span>
+</a>
+<!-- Tab: Leaderboard -->
+<a class="flex-1 py-2 px-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md flex flex-col items-center justify-center gap-0.5 transition-colors" data-path="leaderboard" href="#">
+<span class="material-symbols-outlined text-[20px]">trophy</span>
+<span class="text-[11px] font-bold leading-none">Ranks</span>
+</a>
+<!-- Tab: Rulebook -->
+<a class="flex-1 py-2 px-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container font-label-md text-label-md flex flex-col items-center justify-center gap-0.5 transition-colors" data-path="rules" href="#">
+<span class="material-symbols-outlined text-[20px]">menu_book</span>
+<span class="text-[11px] font-bold leading-none">Rules</span>
+</a>
+</div>
+</footer>
+</body></html>

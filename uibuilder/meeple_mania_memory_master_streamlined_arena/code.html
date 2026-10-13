@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Meeple Mania: Memory Master - Simple Game Arena</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #FAF6EE;
+      color: #0d1b2a;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .tactile-btn {
+      transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.14);
+    }
+    .tactile-btn:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.14);
+    }
+    .tile-card {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+      box-shadow: 0 8px 0 rgba(13, 27, 42, 0.08), 0 14px 20px -8px rgba(0, 0, 0, 0.06);
+    }
+    .tile-card:active {
+      transform: translateY(5px) scale(0.97);
+      box-shadow: 0 3px 0 rgba(13, 27, 42, 0.08);
+    }
+    .tile-card.flash-active {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 0 28px rgba(245, 158, 11, 0.65), 0 6px 0 rgba(13, 27, 42, 0.1);
+      border-color: #F59E0B !important;
+      background-color: #FFFBEB !important;
+    }
+    @keyframes pulseSoft {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .mascot-bounce {
+      animation: pulseSoft 3s ease-in-out infinite;
+    }
+    /* Simple glass modal */
+    .glass-bar {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-300 antialiased overflow-x-hidden">
+
+  <!-- Header / Persistent Clean HUD -->
+  <header class="w-full max-w-xl mx-auto px-4 pt-4 sm:pt-6">
+    <div class="glass-bar border-2 border-amber-900/10 rounded-3xl p-3 sm:px-5 flex items-center justify-between shadow-sm">
+      <!-- Brand & Mascot Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-amber-500/10 p-1 flex items-center justify-center border border-amber-500/20 overflow-hidden flex-shrink-0">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQIWEI5o9zJqWsC661xtACAWNaMRH_lGtS660aQGMY06_Bop45sI3dkwakrCE2g0uogHRljKJ4hKmjiAMGlEe7y4Su_o-PogmotABhD4BxovLnFDzGed3DL-FgaqgLhkqF8J0FMBnIOEoIdRI6wpEFkdBLqNPYiwYa3GXXhPmRJyQprfLGDd1gx5OkkDAJ4Y9A-oS9pNeChDm6A5_Bidzgf3jZjlyextYfEnIdSoQifB4BtoTu_hWk7G3x7BOAETGL_Rc" alt="Meeple Mania" class="w-full h-full object-contain">
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-base sm:text-lg font-black tracking-tight text-[#0d1b2a] leading-tight">Meeple Mania</span>
+            <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-amber-500 text-white leading-none">Mini</span>
+          </div>
+          <p class="text-[11px] font-semibold text-stone-500 leading-none mt-0.5">Memory Master</p>
+        </div>
+      </div>
+
+      <!-- Quick Stats Pill: Streak + Best -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-[#0d1b2a]/5 border border-stone-200">
+          <iconify-icon icon="solar:flame-bold" class="text-amber-500 text-base"></iconify-icon>
+          <span id="streakDisplay" class="text-xs sm:text-sm font-black text-[#0d1b2a]">3 Streak</span>
+        </div>
+        <button id="helpBtn" class="w-9 h-9 rounded-2xl bg-white border border-stone-200 hover:bg-stone-50 flex items-center justify-center text-stone-600 transition-colors shadow-sm">
+          <iconify-icon icon="solar:question-circle-bold" class="text-lg"></iconify-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Game Stage Area -->
+  <main class="w-full max-w-lg mx-auto px-4 py-4 flex-1 flex flex-col justify-center">
+
+    <!-- Compact Game Status Banner -->
+    <div class="mb-4 text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 font-extrabold text-xs sm:text-sm shadow-xs mb-2.5">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
+        <span id="stageBadge">Round 1: Watch the Sequence</span>
+      </div>
+      
+      <!-- Primary Score and Target Indicator -->
+      <div class="flex items-center justify-center gap-6">
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400">Current Level</div>
+          <div id="levelVal" class="text-2xl sm:text-3xl font-black text-[#0d1b2a]">Level 4</div>
+        </div>
+        <div class="h-8 w-px bg-stone-200"></div>
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400">Score</div>
+          <div id="scoreVal" class="text-2xl sm:text-3xl font-black text-amber-600">1,450</div>
+        </div>
+        <div class="h-8 w-px bg-stone-200"></div>
+        <div>
+          <div class="text-[11px] font-bold uppercase tracking-wider text-stone-400">Steps to Tap</div>
+          <div id="stepCounter" class="text-2xl sm:text-3xl font-black text-emerald-600">0 / 4</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coach Mascot Helper Card -->
+    <div class="bg-white/80 border border-stone-200/80 rounded-2xl p-2.5 mb-4 flex items-center gap-3 shadow-xs">
+      <div class="w-10 h-10 rounded-xl bg-amber-50 p-1 flex-shrink-0 flex items-center justify-center overflow-hidden">
+        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7EGuQPKQKnkoImSBElIhijLqkLuWk_n-wCPCro96KvXgtRO8YDUQbQF6knG5R2J81ylxVhGThPNS7MMvWhlb1KawcF23yT8TfXRkPsSo1jxzu-_UNhiMZMY6kZzFTbEuDqaahYs2ltvql4dSD1gJaw9zt0-2jjh3msxpmXKrB0EH4HuFuowrUFcOF4-dFCMTFHs4-hka17vkHW2_1RKWiflBsJlYdh2xLJlmZyWSRcoTIE1e3bHjZwF5OIyMKfMxm614" alt="Meeple Mascot" class="w-full h-full object-contain mascot-bounce">
+      </div>
+      <div class="text-left flex-1 min-w-0">
+        <p id="coachTip" class="text-xs font-bold text-stone-700 truncate sm:text-clip">
+          "Tap <span class="text-amber-600">Start Sequence</span> and repeat the tiles in exact order!"
+        </p>
+      </div>
+      <div class="flex items-center gap-1 text-xs font-bold text-stone-400 pr-1">
+        <iconify-icon icon="solar:volume-loud-bold" class="text-stone-500 cursor-pointer hover:text-amber-600"></iconify-icon>
+      </div>
+    </div>
+
+    <!-- Clean 4-Tile Tabletop Tactile Arena (Simplified 2x2 for ultra-fast mobile play & responsive desktop) -->
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 aspect-square max-w-[360px] mx-auto w-full my-auto">
+      
+      <!-- Tile 1: Golden Meeple -->
+      <button data-tile-id="1" class="tile-card relative rounded-3xl bg-white border-3 border-amber-300/80 flex flex-col items-center justify-center p-3 sm:p-5 cursor-pointer outline-none">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+          <iconify-icon icon="solar:crown-star-bold" class="text-3xl sm:text-4xl"></iconify-icon>
+        </div>
+        <span class="text-xs sm:text-sm font-black text-stone-800">Crown Meeple</span>
+        <span class="text-[10px] font-extrabold uppercase text-amber-600/80 tracking-wide mt-0.5">#1 Amber</span>
+      </button>
+
+      <!-- Tile 2: Ruby Dice -->
+      <button data-tile-id="2" class="tile-card relative rounded-3xl bg-white border-3 border-rose-300/80 flex flex-col items-center justify-center p-3 sm:p-5 cursor-pointer outline-none">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-500 mb-2">
+          <iconify-icon icon="solar:dice-bold" class="text-3xl sm:text-4xl"></iconify-icon>
+        </div>
+        <span class="text-xs sm:text-sm font-black text-stone-800">Ruby Dice</span>
+        <span class="text-[10px] font-extrabold uppercase text-rose-600/80 tracking-wide mt-0.5">#2 Crimson</span>
+      </button>
+
+      <!-- Tile 3: Emerald Shield -->
+      <button data-tile-id="3" class="tile-card relative rounded-3xl bg-white border-3 border-emerald-300/80 flex flex-col items-center justify-center p-3 sm:p-5 cursor-pointer outline-none">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
+          <iconify-icon icon="solar:shield-check-bold" class="text-3xl sm:text-4xl"></iconify-icon>
+        </div>
+        <span class="text-xs sm:text-sm font-black text-stone-800">Jade Shield</span>
+        <span class="text-[10px] font-extrabold uppercase text-emerald-600/80 tracking-wide mt-0.5">#3 Emerald</span>
+      </button>
+
+      <!-- Tile 4: Sapphire Wheel -->
+      <button data-tile-id="4" class="tile-card relative rounded-3xl bg-white border-3 border-sky-300/80 flex flex-col items-center justify-center p-3 sm:p-5 cursor-pointer outline-none">
+        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-sky-500/10 flex items-center justify-center text-sky-500 mb-2">
+          <iconify-icon icon="solar:star-fall-bold" class="text-3xl sm:text-4xl"></iconify-icon>
+        </div>
+        <span class="text-xs sm:text-sm font-black text-stone-800">Sapphire Star</span>
+        <span class="text-[10px] font-extrabold uppercase text-sky-600/80 tracking-wide mt-0.5">#4 Cobalt</span>
+      </button>
+
+    </div>
+
+    <!-- Quick Action Deck -->
+    <div class="mt-4 flex flex-col sm:flex-row items-center gap-2.5 max-w-[360px] mx-auto w-full">
+      <button id="playBtn" class="tactile-btn w-full py-3.5 px-6 rounded-2xl bg-amber-500 hover:bg-amber-400 text-[#0d1b2a] font-black text-base flex items-center justify-center gap-2 shadow-sm border-b-4 border-amber-600">
+        <iconify-icon icon="solar:play-circle-bold" class="text-xl"></iconify-icon>
+        <span id="playBtnText">Play Sequence</span>
+      </button>
+
+      <button id="replayBtn" class="tactile-btn w-full sm:w-auto py-3.5 px-4 rounded-2xl bg-white hover:bg-stone-50 text-stone-700 font-extrabold text-sm flex items-center justify-center gap-2 border border-stone-200">
+        <iconify-icon icon="solar:restart-bold" class="text-base text-stone-500"></iconify-icon>
+        <span>Replay (-50 pts)</span>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Clean Bottom Navigation Tabs (Simple Web & Mobile Touch Bar) -->
+  <footer class="w-full max-w-xl mx-auto px-4 pb-4 sm:pb-6">
+    <div class="glass-bar border-2 border-stone-200/90 rounded-3xl p-1.5 flex items-center justify-between shadow-sm">
+      
+      <!-- Tab 1: Play (Active) -->
+      <button class="flex-1 py-2 rounded-2xl bg-amber-500 text-[#0d1b2a] font-black text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 shadow-xs">
+        <iconify-icon icon="solar:gamepad-bold" class="text-lg"></iconify-icon>
+        <span>Play</span>
+      </button>
+
+      <!-- Tab 2: Challenge Friend -->
+      <button onclick="openModal('challengeModal')" class="flex-1 py-2 rounded-2xl text-stone-600 hover:text-stone-900 font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 transition-colors">
+        <iconify-icon icon="solar:users-group-rounded-bold" class="text-lg text-stone-400"></iconify-icon>
+        <span>Challenge</span>
+      </button>
+
+      <!-- Tab 3: Leaderboard -->
+      <button onclick="openModal('leaderboardModal')" class="flex-1 py-2 rounded-2xl text-stone-600 hover:text-stone-900 font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 transition-colors">
+        <iconify-icon icon="solar:cup-star-bold" class="text-lg text-stone-400"></iconify-icon>
+        <span>Rankings</span>
+      </button>
+
+      <!-- Tab 4: Rules -->
+      <button onclick="openModal('rulesModal')" class="flex-1 py-2 rounded-2xl text-stone-600 hover:text-stone-900 font-bold text-xs sm:text-sm flex flex-col sm:flex-row items-center justify-center gap-1 transition-colors">
+        <iconify-icon icon="solar:book-bookmark-bold" class="text-lg text-stone-400"></iconify-icon>
+        <span>Rules</span>
+      </button>
+
+    </div>
+  </footer>
+
+  <!-- Modal: Simple Challenge Friends Link Generator -->
+  <div id="challengeModal" class="fixed inset-0 bg-[#0d1b2a]/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border-2 border-amber-500/20">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+            <iconify-icon icon="solar:share-circle-bold" class="text-xl"></iconify-icon>
+          </div>
+          <h3 class="font-black text-lg text-stone-800">Challenge Friend</h3>
+        </div>
+        <button onclick="closeModal('challengeModal')" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500">
+          <iconify-icon icon="solar:close-circle-bold" class="text-xl"></iconify-icon>
+        </button>
+      </div>
+
+      <p class="text-xs text-stone-500 mb-4 font-medium">Send this match link. Your rival plays the exact same seed!</p>
+
+      <div class="p-3 bg-stone-50 border border-stone-200 rounded-2xl flex items-center justify-between gap-2 mb-4">
+        <span class="text-xs font-mono font-bold text-stone-700 truncate">meeplemania.gg/duel?seed=8492</span>
+        <button onclick="copyLink(this)" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-[#0d1b2a] font-extrabold text-xs flex-shrink-0">
+          Copy
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-center">
+        <a href="https://api.whatsapp.com" target="_blank" class="p-2.5 rounded-2xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-extrabold text-xs flex items-center justify-center gap-1.5 border border-emerald-200">
+          <iconify-icon icon="logos:whatsapp-icon" class="text-base"></iconify-icon>
+          WhatsApp
+        </a>
+        <a href="https://discord.com" target="_blank" class="p-2.5 rounded-2xl bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-extrabold text-xs flex items-center justify-center gap-1.5 border border-indigo-200">
+          <iconify-icon icon="logos:discord-icon" class="text-base"></iconify-icon>
+          Discord
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Clean Leaderboard Popup -->
+  <div id="leaderboardModal" class="fixed inset-0 bg-[#0d1b2a]/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border-2 border-amber-500/20 max-h-[85vh] flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+            <iconify-icon icon="solar:cup-star-bold" class="text-xl"></iconify-icon>
+          </div>
+          <h3 class="font-black text-lg text-stone-800">Top Duelists</h3>
+        </div>
+        <button onclick="closeModal('leaderboardModal')" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500">
+          <iconify-icon icon="solar:close-circle-bold" class="text-xl"></iconify-icon>
+        </button>
+      </div>
+
+      <div class="space-y-2 overflow-y-auto pr-1 my-2 flex-1">
+        <!-- Rank 1 -->
+        <div class="flex items-center justify-between p-2.5 rounded-2xl bg-amber-50/80 border border-amber-200">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center">1</span>
+            <div>
+              <p class="font-extrabold text-xs text-stone-800">TileWizard99</p>
+              <p class="text-[10px] text-stone-500 font-semibold">Level 34 • 00:54s</p>
+            </div>
+          </div>
+          <span class="font-black text-xs text-amber-700">98,200 pts</span>
+        </div>
+
+        <!-- Rank 2 -->
+        <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-200">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-stone-300 text-stone-700 font-black text-xs flex items-center justify-center">2</span>
+            <div>
+              <p class="font-extrabold text-xs text-stone-800">BrainiacBob</p>
+              <p class="text-[10px] text-stone-500 font-semibold">Level 31 • 01:12s</p>
+            </div>
+          </div>
+          <span class="font-black text-xs text-stone-700">94,450 pts</span>
+        </div>
+
+        <!-- Rank 3 -->
+        <div class="flex items-center justify-between p-2.5 rounded-2xl bg-stone-50 border border-stone-200">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-amber-700 text-amber-100 font-black text-xs flex items-center justify-center">3</span>
+            <div>
+              <p class="font-extrabold text-xs text-stone-800">LuckyDice</p>
+              <p class="text-[10px] text-stone-500 font-semibold">Level 29 • 01:24s</p>
+            </div>
+          </div>
+          <span class="font-black text-xs text-stone-700">89,120 pts</span>
+        </div>
+
+        <!-- You -->
+        <div class="flex items-center justify-between p-2.5 rounded-2xl bg-emerald-50 border border-emerald-300 mt-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center">142</span>
+            <div>
+              <p class="font-extrabold text-xs text-emerald-900">You (MeepleMaster)</p>
+              <p class="text-[10px] text-emerald-700 font-semibold">Level 4 • 02:40s</p>
+            </div>
+          </div>
+          <span class="font-black text-xs text-emerald-800">1,450 pts</span>
+        </div>
+      </div>
+
+      <button onclick="closeModal('leaderboardModal')" class="w-full mt-3 py-2.5 rounded-2xl bg-[#0d1b2a] text-white font-extrabold text-xs hover:bg-stone-800">
+        Close Rankings
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Quick Rules -->
+  <div id="rulesModal" class="fixed inset-0 bg-[#0d1b2a]/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 shadow-2xl border-2 border-amber-500/20">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-black text-lg text-stone-800">How to Play</h3>
+        <button onclick="closeModal('rulesModal')" class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-500">
+          <iconify-icon icon="solar:close-circle-bold" class="text-xl"></iconify-icon>
+        </button>
+      </div>
+
+      <ul class="text-xs space-y-2.5 text-stone-600 mb-4 font-semibold">
+        <li class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold flex-shrink-0">1</span>
+          <span><strong>Watch:</strong> Observe the flashing tiles as the sequence plays.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold flex-shrink-0">2</span>
+          <span><strong>Repeat:</strong> Tap the tiles in the exact chronological order.</span>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] flex items-center justify-center font-bold flex-shrink-0">3</span>
+          <span><strong>Ascend:</strong> Each level adds one extra step to the pattern!</span>
+        </li>
+      </ul>
+
+      <button onclick="closeModal('rulesModal')" class="w-full py-2.5 rounded-2xl bg-amber-500 text-[#0d1b2a] font-black text-xs hover:bg-amber-400">
+        Got it, Let's Play!
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Game Engine JavaScript -->
+  <script>
+    const tiles = document.querySelectorAll('.tile-card');
+    const playBtn = document.getElementById('playBtn');
+    const replayBtn = document.getElementById('replayBtn');
+    const playBtnText = document.getElementById('playBtnText');
+    const stageBadge = document.getElementById('stageBadge');
+    const coachTip = document.getElementById('coachTip');
+    const stepCounter = document.getElementById('stepCounter');
+    const levelVal = document.getElementById('levelVal');
+    const scoreVal = document.getElementById('scoreVal');
+    const streakDisplay = document.getElementById('streakDisplay');
+
+    let currentSequence = [1, 3, 2, 4]; // Initial 4 steps
+    let userStep = 0;
+    let isPlayingSequence = false;
+    let playerCanInput = false;
+    let level = 4;
+    let score = 1450;
+    let streak = 3;
+
+    function flashTile(tileId, duration = 400) {
+      return new Promise(resolve => {
+        const tile = document.querySelector(`.tile-card[data-tile-id="${tileId}"]`);
+        if (!tile) return resolve();
+        tile.classList.add('flash-active');
+        setTimeout(() => {
+          tile.classList.remove('flash-active');
+          setTimeout(resolve, 150);
+        }, duration);
+      });
+    }
+
+    async function playCurrentSequence() {
+      if (isPlayingSequence) return;
+      isPlayingSequence = true;
+      playerCanInput = false;
+      userStep = 0;
+      stepCounter.innerText = `0 / ${currentSequence.length}`;
+      stageBadge.innerText = 'Observing Pattern...';
+      coachTip.innerHTML = '"Eyes on the board! Memorize the glowing tiles."';
+      playBtn.disabled = true;
+      playBtnText.innerText = 'Showing...';
+
+      for (let i = 0; i < currentSequence.length; i++) {
+        await new Promise(r => setTimeout(r, 250));
+        await flashTile(currentSequence[i], 420);
+      }
+
+      isPlayingSequence = false;
+      playerCanInput = true;
+      stageBadge.innerText = 'Your Turn! Tap Tiles';
+      coachTip.innerHTML = '"Now reproduce the pattern in order!"';
+      playBtnText.innerText = 'Pattern Loaded';
+    }
+
+    tiles.forEach(tile => {
+      tile.addEventListener('click', () => {
+        const id = parseInt(tile.getAttribute('data-tile-id'), 10);
+        
+        // Immediate tactile feedback
+        tile.classList.add('flash-active');
+        setTimeout(() => tile.classList.remove('flash-active'), 180);
+
+        if (!playerCanInput) return;
+
+        if (id === currentSequence[userStep]) {
+          userStep++;
+          stepCounter.innerText = `${userStep} / ${currentSequence.length}`;
+
+          if (userStep === currentSequence.length) {
+            // Level cleared!
+            playerCanInput = false;
+            score += 250 * currentSequence.length;
+            level++;
+            streak++;
+            scoreVal.innerText = score.toLocaleString();
+            levelVal.innerText = `Level ${level}`;
+            streakDisplay.innerText = `${streak} Streak`;
+            stageBadge.innerText = 'Perfect Match! +1,000 pts';
+            coachTip.innerHTML = '<span class="text-emerald-600 font-extrabold">"Brilliant recall! Next round unlocked!"</span>';
+
+            // Add new random tile
+            currentSequence.push(Math.floor(Math.random() * 4) + 1);
+            playBtn.disabled = false;
+            playBtnText.innerText = `Next Round (Lvl ${level})`;
+          }
+        } else {
+          // Mistake made
+          playerCanInput = false;
+          stageBadge.innerText = 'Missed Step! Try Again';
+          coachTip.innerHTML = '<span class="text-rose-600 font-extrabold">"Oops! Watch the sequence and retry."</span>';
+          playBtn.disabled = false;
+          playBtnText.innerText = 'Retry Sequence';
+          userStep = 0;
+        }
+      });
+    });
+
+    playBtn.addEventListener('click', () => {
+      playCurrentSequence();
+    });
+
+    replayBtn.addEventListener('click', () => {
+      if (isPlayingSequence) return;
+      score = Math.max(0, score - 50);
+      scoreVal.innerText = score.toLocaleString();
+      playCurrentSequence();
+    });
+
+    // Modal controls
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+    function copyLink(btn) {
+      navigator.clipboard && navigator.clipboard.writeText("https://meeplemania.gg/duel?seed=8492");
+      const prev = btn.innerText;
+      btn.innerText = "Copied!";
+      btn.classList.add("bg-emerald-500", "text-white");
+      setTimeout(() => {
+        btn.innerText = prev;
+        btn.classList.remove("bg-emerald-500", "text-white");
+      }, 1500);
+    }
+  </script>
+</body>
+</html>

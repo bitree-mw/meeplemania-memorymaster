@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Meeple Mania: Memory Master - Leaderboard</title>
+<!-- Font Awesome Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            arena: {
+              bg: '#FAF7F2',
+              card: '#FFFFFF',
+              primary: '#F59E0B',
+              amberDark: '#D97706',
+              gold: '#FBBF24',
+              silver: '#94A3B8',
+              bronze: '#CD7F32',
+              accentEmerald: '#10B981',
+              accentRed: '#EF4444',
+              accentBlue: '#3B82F6',
+              textMain: '#1E293B',
+              textMuted: '#64748B',
+            }
+          },
+          boxShadow: {
+            'soft-pill': '0 4px 20px -2px rgba(148, 163, 184, 0.15)',
+            'card-lift': '0 8px 24px -4px rgba(148, 163, 184, 0.18)',
+            'tactile-btn': '0 5px 0 0 #D97706',
+            'tactile-btn-subtle': '0 4px 0 0 #E2E8F0',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for tactile feel and aesthetics -->
+<style data-purpose="custom-tactile-styling">
+    body {
+      background-color: #FAF7F2;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    .tactile-action-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 0 #D97706;
+    }
+    
+    .tactile-subtle-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 0 #CBD5E1;
+    }
+
+    /* Custom thin scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #E2E8F0;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #CBD5E1;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center justify-between p-4 md:py-6 selection:bg-amber-100 selection:text-amber-900">
+<!-- BEGIN: MainContainer -->
+<main class="w-full max-w-2xl flex flex-col gap-5 items-center pb-24">
+<!-- BEGIN: FloatingTopNav -->
+<header class="w-full bg-white rounded-full px-4 py-2.5 shadow-soft-pill border border-amber-50 flex items-center justify-between" data-purpose="top-navigation-bar">
+<!-- Logo and App Info -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center p-0.5 overflow-hidden flex-shrink-0">
+<img alt="Meeple Mania Logo" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgrRu9oS1y3ehB-EEWweADYqocoMMu1yS-bR2A-0KBNt0DcG8BTaLMpZH_WCXCOrrbxPPQUb4nKR1CJV6-zdScwAiQZ7krdfuEPNwK9UwtfuiBQ3k1F2c6iOuOqrhlu9yEbG6ky8FDle1lIsdyKxbolF8bg2pcyYjKn1tRRovz4WUMbRNILvgWglAJZ9R3P7FrufxSYxaCxsPD1AF6lqvIGLNtCH8jWNb06IrSHTdZgTlOQib4JUw8bP41U4qp1GHWhYM"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5 leading-none">
+<span class="font-bold text-sm tracking-tight text-slate-900">Meeple Mania</span>
+<span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-amber-500 text-white leading-none">MINI</span>
+</div>
+<p class="text-xs text-slate-500 font-medium mt-0.5">Leaderboard &amp; Standings</p>
+</div>
+</div>
+<!-- Right Header Actions & Rank Badge -->
+<div class="flex items-center gap-2">
+<div class="hidden sm:flex items-center gap-1.5 bg-amber-50/80 border border-amber-200/60 rounded-full px-3 py-1.5 text-xs font-semibold text-amber-900">
+<i class="fa-solid fa-crown text-amber-500 text-xs"></i>
+<span>#142</span>
+<span class="text-amber-300 font-normal">•</span>
+<span class="text-slate-600 font-medium">Lvl 18</span>
+</div>
+<button aria-label="Game Rules &amp; Help" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition-colors">
+<i class="fa-solid fa-question text-xs"></i>
+</button>
+</div>
+</header>
+<!-- END: FloatingTopNav -->
+<!-- BEGIN: HeaderBannerStatus -->
+<div class="flex items-center justify-center" data-purpose="badge-round-indicator">
+<div class="bg-amber-100/70 border border-amber-200/80 rounded-full px-4 py-1.5 flex items-center gap-2 text-xs font-semibold text-amber-900">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
+<span>Global Hall of Fame • Season 4</span>
+</div>
+</div>
+<!-- END: HeaderBannerStatus -->
+<!-- BEGIN: SegmentedFilterSwitcher -->
+<nav aria-label="Leaderboard Filters" class="w-full bg-slate-200/60 p-1 rounded-2xl flex items-center gap-1 max-w-md shadow-inner text-xs font-semibold" data-purpose="filter-pill-bar">
+<button class="flex-1 py-2 rounded-xl bg-white text-slate-900 shadow-sm text-center font-bold transition-all">
+        Highest Level
+      </button>
+<button class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 text-center transition-all">
+        Fastest Time
+      </button>
+<button class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 text-center transition-all">
+        Weekly Cup
+      </button>
+<button class="flex-1 py-2 rounded-xl text-slate-500 hover:text-slate-800 text-center transition-all">
+        All Time
+      </button>
+</nav>
+<!-- END: SegmentedFilterSwitcher -->
+<!-- BEGIN: Top3PodiumCards -->
+<section class="w-full grid grid-cols-3 gap-2.5 sm:gap-4 items-end pt-3 pb-1" data-purpose="top-three-podium">
+<!-- #2 Silver Card -->
+<article class="bg-white rounded-3xl p-3 sm:p-4 text-center border border-slate-100 shadow-soft-pill flex flex-col items-center relative order-1">
+<div class="absolute -top-3 w-7 h-7 rounded-full bg-slate-100 border-2 border-slate-300 text-slate-600 font-extrabold text-xs flex items-center justify-center shadow-sm">
+          2
+        </div>
+<div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center mb-2 mt-1 relative overflow-hidden">
+<i class="fa-solid fa-gamepad text-xl text-slate-400"></i>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-full">MeepleNinja</h3>
+<p class="text-[11px] font-semibold text-slate-500">Lvl 31</p>
+<div class="mt-2 text-[10px] font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">
+          54.1s • 154k
+        </div>
+</article>
+<!-- #1 Gold Card (Prominent & Taller) -->
+<article class="bg-white rounded-3xl p-3.5 sm:p-5 text-center border-2 border-amber-300 shadow-card-lift flex flex-col items-center relative order-2 transform -translate-y-2">
+<div class="absolute -top-4 w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 border-2 border-white text-white font-black text-sm flex items-center justify-center shadow-md">
+<i class="fa-solid fa-crown text-xs"></i>
+</div>
+<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mb-2 mt-2 relative overflow-hidden shadow-inner">
+<img alt="FlipKing99 Mascot Avatar" class="w-12 h-12 object-contain drop-shadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqc6T3zp739WdQ_yvovcd1Z08fEXQeu-VHaMkppbxRg_MH5BtIKKM3vcBYvL3dXgEP4GqlWCQy73A3fw0Qjn-HsuPfHIWRIbMxpRb1xHZrwnKFo7G7R1-hooY2sG7rbKLnZsvpDPLCNIiKD-fmwTnSx1LwB5qFoK6J--L9SCF1ksBm5cPdj2jYRUG0iGxaZRczeoinDJ4Tw7Znt_3eRTKcaOwGAn9nM2EHpvUiIUC4sdUesvPTrG4Gf_66QkkPekQ9qLM"/>
+</div>
+<h3 class="text-sm sm:text-base font-extrabold text-slate-900 truncate max-w-full">FlipKing99</h3>
+<span class="text-xs font-bold text-amber-600">Level 34</span>
+<div class="mt-2 text-[11px] font-bold bg-amber-100 text-amber-900 rounded-full px-2.5 py-0.5">
+          48.2s • 182k pts
+        </div>
+</article>
+<!-- #3 Bronze Card -->
+<article class="bg-white rounded-3xl p-3 sm:p-4 text-center border border-slate-100 shadow-soft-pill flex flex-col items-center relative order-3">
+<div class="absolute -top-3 w-7 h-7 rounded-full bg-amber-50 border-2 border-amber-600/40 text-amber-800 font-extrabold text-xs flex items-center justify-center shadow-sm">
+          3
+        </div>
+<div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-orange-50/60 border border-orange-100 flex items-center justify-center mb-2 mt-1 relative overflow-hidden">
+<i class="fa-solid fa-wand-magic-sparkles text-xl text-amber-700/60"></i>
+</div>
+<h3 class="text-xs sm:text-sm font-bold text-slate-900 truncate max-w-full">TileWhisper</h3>
+<p class="text-[11px] font-semibold text-slate-500">Lvl 29</p>
+<div class="mt-2 text-[10px] font-medium bg-amber-50 text-amber-800 rounded-full px-2 py-0.5">
+          1m 02s • 138k
+        </div>
+</article>
+</section>
+<!-- END: Top3PodiumCards -->
+<!-- BEGIN: RankedPlayerList -->
+<section class="w-full bg-white rounded-3xl p-3 sm:p-5 shadow-soft-pill border border-slate-100 flex flex-col gap-2.5" data-purpose="leaderboard-ranked-list">
+<div class="flex items-center justify-between px-2 text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+<span>Rank &amp; Player</span>
+<div class="flex items-center gap-6">
+<span class="w-14 text-center">Score / Lvl</span>
+<span class="w-16 text-right">Time &amp; Acc</span>
+</div>
+</div>
+<!-- Rank 4 -->
+<div class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="font-extrabold text-xs text-slate-400 w-5 text-center">#4</span>
+<div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
+<i class="fa-solid fa-shield"></i>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-800 leading-tight">EchoMaster</div>
+<div class="text-[10px] text-slate-400">Master Scout</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-14 text-center">
+<span class="text-xs font-bold text-slate-800">Lvl 28</span>
+</div>
+<div class="w-16 text-right">
+<div class="text-xs font-semibold text-slate-700">1m 08s</div>
+<div class="text-[10px] text-emerald-600 font-bold">99% acc</div>
+</div>
+</div>
+</div>
+<!-- Rank 5 -->
+<div class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="font-extrabold text-xs text-slate-400 w-5 text-center">#5</span>
+<div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
+<i class="fa-solid fa-gem"></i>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-800 leading-tight">SapphireMind</div>
+<div class="text-[10px] text-slate-400">Speed Runner</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-14 text-center">
+<span class="text-xs font-bold text-slate-800">Lvl 26</span>
+</div>
+<div class="w-16 text-right">
+<div class="text-xs font-semibold text-slate-700">1m 14s</div>
+<div class="text-[10px] text-blue-600 font-bold">98% acc</div>
+</div>
+</div>
+</div>
+<!-- Rank 6 -->
+<div class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="font-extrabold text-xs text-slate-400 w-5 text-center">#6</span>
+<div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xs">
+<i class="fa-solid fa-dice-d20"></i>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-800 leading-tight">PixelPuzzle</div>
+<div class="text-[10px] text-slate-400">Tactician</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-14 text-center">
+<span class="text-xs font-bold text-slate-800">Lvl 25</span>
+</div>
+<div class="w-16 text-right">
+<div class="text-xs font-semibold text-slate-700">1m 19s</div>
+<div class="text-[10px] text-slate-400 font-semibold">96% acc</div>
+</div>
+</div>
+</div>
+<!-- Rank 7 -->
+<div class="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition-colors">
+<div class="flex items-center gap-3">
+<span class="font-extrabold text-xs text-slate-400 w-5 text-center">#7</span>
+<div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs">
+<i class="fa-solid fa-bolt"></i>
+</div>
+<div>
+<div class="text-xs font-bold text-slate-800 leading-tight">FlashMemory</div>
+<div class="text-[10px] text-slate-400">Challenger</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="w-14 text-center">
+<span class="text-xs font-bold text-slate-800">Lvl 24</span>
+</div>
+<div class="w-16 text-right">
+<div class="text-xs font-semibold text-slate-700">1m 22s</div>
+<div class="text-[10px] text-slate-400 font-semibold">95% acc</div>
+</div>
+</div>
+</div>
+<!-- Divider / Elipses -->
+<div class="flex items-center justify-center py-1">
+<div class="flex items-center gap-1.5 text-slate-300">
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+<span class="w-1 h-1 rounded-full bg-slate-300"></span>
+</div>
+</div>
+<!-- Current User Highlight Row (#142 You) -->
+<div class="flex items-center justify-between p-3 rounded-2xl bg-amber-50/70 border border-amber-200/90 shadow-sm" data-purpose="current-user-highlight">
+<div class="flex items-center gap-3">
+<span class="font-extrabold text-xs text-amber-700 w-6 text-center">#142</span>
+<div class="w-9 h-9 rounded-xl bg-white border border-amber-200 p-0.5 flex items-center justify-center overflow-hidden">
+<img alt="You Avatar" class="w-7 h-7 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqc6T3zp739WdQ_yvovcd1Z08fEXQeu-VHaMkppbxRg_MH5BtIKKM3vcBYvL3dXgEP4GqlWCQy73A3fw0Qjn-HsuPfHIWRIbMxpRb1xHZrwnKFo7G7R1-hooY2sG7rbKLnZsvpDPLCNIiKD-fmwTnSx1LwB5qFoK6J--L9SCF1ksBm5cPdj2jYRUG0iGxaZRczeoinDJ4Tw7Znt_3eRTKcaOwGAn9nM2EHpvUiIUC4sdUesvPTrG4Gf_66QkkPekQ9qLM"/>
+</div>
+<div>
+<div class="flex items-center gap-1.5">
+<span class="text-xs font-extrabold text-slate-900">You</span>
+<span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-800">YOUR PB</span>
+</div>
+<div class="text-[11px] text-amber-800/80 font-medium">Level 18 • 1m 12s</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold text-slate-700 hidden sm:inline">Top 12%</span>
+<button class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95">
+            Rank Up
+          </button>
+</div>
+</div>
+</section>
+<!-- END: RankedPlayerList -->
+<!-- BEGIN: QuickLadderCTA -->
+<div class="w-full flex items-center justify-center gap-3 pt-2" data-purpose="action-buttons-group">
+<!-- Main Play Action -->
+<button class="flex-1 max-w-xs h-14 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-base rounded-2xl shadow-tactile-btn tactile-action-btn flex items-center justify-center gap-2.5 transition-all">
+<i class="fa-solid fa-bolt text-lg"></i>
+<span>Play &amp; Climb Ladder</span>
+</button>
+<!-- Spectate / Replay Match -->
+<button class="h-14 px-5 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-2xl border border-slate-200 shadow-tactile-btn-subtle tactile-subtle-btn flex flex-col items-center justify-center leading-tight transition-all">
+<i class="fa-solid fa-eye text-sm mb-0.5 text-slate-400"></i>
+<span>Watch #1</span>
+</button>
+</div>
+<!-- END: QuickLadderCTA -->
+</main>
+<!-- END: MainContainer -->
+<!-- BEGIN: BottomStickyNavigation -->
+<footer class="fixed bottom-4 left-0 right-0 flex justify-center px-4 pointer-events-none z-30" data-purpose="bottom-nav-container">
+<nav aria-label="Bottom Navigation" class="pointer-events-auto bg-white/95 backdrop-blur-md rounded-full px-3 py-2 shadow-card-lift border border-slate-200/80 flex items-center gap-1 sm:gap-2 max-w-md w-full justify-around">
+<!-- Play -->
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
+<i class="fa-solid fa-gamepad text-sm"></i>
+<span>Play</span>
+</button>
+<!-- Leaderboard (Active Pill) -->
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-black bg-amber-500 text-slate-950 shadow-sm transition-all">
+<i class="fa-solid fa-trophy text-sm"></i>
+<span>Rankings</span>
+</button>
+<!-- Challenge / Stats -->
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
+<i class="fa-solid fa-user-group text-sm"></i>
+<span>Challenge</span>
+</button>
+<!-- Rules -->
+<button class="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors">
+<i class="fa-solid fa-book-open text-sm"></i>
+<span>Rules</span>
+</button>
+</nav>
+</footer>
+<!-- END: BottomStickyNavigation -->
+</body></html>
