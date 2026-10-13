@@ -69,7 +69,7 @@ const example = computed(() => {
         <!-- Per game -->
         <section class="card p-6 sm:p-8" aria-labelledby="games-title">
             <h2 id="games-title" class="text-2xl font-bold text-navy-deep">The games</h2>
-            <div class="-mx-2 mt-4 overflow-x-auto px-2 [scrollbar-width:none]">
+            <div class="-mx-2 mt-3 overflow-x-auto px-2 py-2 [scrollbar-width:none]">
                 <div class="flex w-max gap-2" role="tablist">
                     <button
                         v-for="g in games"

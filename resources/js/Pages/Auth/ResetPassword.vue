@@ -1,25 +1,32 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthCard from '@/Components/AuthCard.vue';
 
 const props = defineProps({
-    email: { type: String, default: '' },
+    username: { type: String, required: true },
     token: { type: String, required: true },
+    valid: { type: Boolean, required: true },
+    expires_at: { type: String, default: null },
 });
 
-const form = useForm({ token: props.token, email: props.email ?? '', password: '', password_confirmation: '' });
+const form = useForm({ username: props.username, token: props.token, password: '', password_confirmation: '' });
 const submit = () => form.post('/reset-password', { onFinish: () => form.reset('password', 'password_confirmation') });
+const expiresAt = props.expires_at ? new Date(props.expires_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : null;
 </script>
 
 <template>
     <Head title="Choose a new password" />
-    <AuthCard title="Choose a new password">
+
+    <AuthCard v-if="!valid" title="Link expired" subtitle="This reset link is invalid, has already been used or has expired.">
+        <Link href="/forgot-password" class="btn btn-primary btn-lg w-full">Request a new link</Link>
+    </AuthCard>
+
+    <AuthCard v-else title="Choose a new password" :subtitle="`For ${username}${expiresAt ? ` · link valid until ${expiresAt}` : ''}`">
         <form class="space-y-4" @submit.prevent="submit">
-            <div>
-                <label class="label" for="email">Email</label>
-                <input id="email" v-model="form.email" type="email" class="field" autocomplete="email" required />
-                <p v-if="form.errors.email" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.email }}</p>
-            </div>
+            <input type="text" :value="username" autocomplete="username" class="hidden" readonly aria-hidden="true" tabindex="-1" />
+            <p v-if="form.errors.token" class="rounded-2xl bg-ruby-soft px-4 py-3 text-sm font-semibold text-ruby-deep">
+                {{ form.errors.token }} <Link href="/forgot-password" class="underline">Request a new link</Link>
+            </p>
             <div>
                 <label class="label" for="password">New password</label>
                 <input id="password" v-model="form.password" type="password" class="field" autocomplete="new-password" required autofocus />

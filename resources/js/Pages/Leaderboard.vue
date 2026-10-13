@@ -1,8 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { Head, Link, router } from '@inertiajs/vue3';
-import { Crown, Gamepad2, Info, Search, Trophy, Zap } from 'lucide-vue-next';
+import { Head, Link, router, usePage } from '@inertiajs/vue3';
+import { Crown, Gamepad2, Info, MapPin, Search, Trophy, Zap } from 'lucide-vue-next';
 import Avatar from '@/Components/Avatar.vue';
+import DistrictSelect from '@/Components/DistrictSelect.vue';
 import Movement from '@/Components/Movement.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { describeRow } from '@/game/leaderboard';
@@ -25,6 +26,10 @@ const props = defineProps({
     me: { type: Object, default: null },
     totalRanked: { type: Number, default: 0 },
     season: { type: Object, default: null },
+    district: { type: String, default: null },
+    districts: { type: Array, required: true },
+    region: { type: String, default: null },
+    regions: { type: Array, required: true },
 });
 
 const current = computed(() => props.games.find((g) => g.slug === props.game) ?? null);
@@ -32,7 +37,7 @@ const unit = computed(() => current.value?.unit ?? 'item');
 const query = ref(props.search ?? '');
 
 function url(params = {}) {
-    const merged = { game: props.game, board: props.board, duration: props.board === 'timed' ? props.duration : null, search: query.value.trim(), ...params };
+    const merged = { game: props.game, board: props.board, duration: props.board === 'timed' ? props.duration : null, district: props.district, region: props.region, search: query.value.trim(), ...params };
     const p = new URLSearchParams();
     Object.entries(merged).forEach(([k, v]) => v !== null && v !== '' && v !== undefined && !(k === 'page' && v === 1) && p.set(k, v));
     return `/leaderboard?${p}`;
@@ -54,6 +59,18 @@ const playHref = computed(() => {
     return `/play/${props.game}/${props.board === 'once' ? 'once' : 'classic'}`;
 });
 const describe = (row) => describeRow(props.board, row, unit.value);
+
+// Location filter: country-wide, the player's region or district, or any other district.
+const districtNames = computed(() => Object.fromEntries(props.districts.map((d) => [d.key, d.name])));
+const regionNames = computed(() => Object.fromEntries(props.regions.map((r) => [r.key, r.name])));
+const myDistrict = computed(() => usePage().props.auth.user?.district ?? null);
+const myRegion = computed(() => props.districts.find((d) => d.key === myDistrict.value)?.region ?? null);
+const scope = computed(() => (props.district ? 'district' : props.region ? 'region' : 'country'));
+const otherDistrict = ref(props.district && props.district !== myDistrict.value ? props.district : null);
+watch(() => props.district, (d) => (otherDistrict.value = d && d !== myDistrict.value ? d : null));
+const show = (params) => router.get(url({ district: null, region: null, page: 1, ...params }), {}, { preserveScroll: true });
+watch(otherDistrict, (d) => d && d !== props.district && show({ district: d }));
+const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink');
 </script>
 
 <template>
@@ -67,10 +84,10 @@ const describe = (row) => describeRow(props.board, row, unit.value);
         </div>
 
         <!-- Game selector -->
-        <nav class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]" aria-label="Game">
+        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Game">
             <div class="mx-auto flex w-max gap-2">
                 <Link
-                    :href="`/leaderboard?game=all`"
+                    :href="url({ game: 'all', board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
                     class="flex items-center gap-2 rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
                     :class="game === 'all' ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
@@ -81,7 +98,7 @@ const describe = (row) => describeRow(props.board, row, unit.value);
                 <Link
                     v-for="g in games"
                     :key="g.slug"
-                    :href="`/leaderboard?game=${g.slug}`"
+                    :href="url({ game: g.slug, board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
                     class="flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
                     :class="game === g.slug ? 'bg-[var(--tile)] text-white shadow-[0_3px_0_var(--tile-deep)]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
@@ -94,7 +111,7 @@ const describe = (row) => describeRow(props.board, row, unit.value);
         </nav>
 
         <!-- Board tabs -->
-        <nav class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]" aria-label="Leaderboard">
+        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Leaderboard">
             <div class="mx-auto flex w-max gap-1 rounded-full bg-cream-high p-1">
                 <Link
                     v-for="c in categories"
@@ -122,6 +139,23 @@ const describe = (row) => describeRow(props.board, row, unit.value);
             >
                 {{ d }}s
             </Link>
+        </div>
+
+        <!-- Location filter -->
+        <div class="flex flex-wrap items-center justify-center gap-2 py-1" role="group" aria-label="Standings">
+            <button type="button" class="rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(scope === 'country')" :aria-pressed="scope === 'country'" @click="show({})">
+                Country-wide
+            </button>
+            <button v-if="myRegion" type="button" class="rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(region === myRegion)" :aria-pressed="region === myRegion" @click="show({ region: myRegion })">
+                My region <span class="opacity-70">· {{ regionNames[myRegion]?.replace(' Region', '') }}</span>
+            </button>
+            <button v-if="myDistrict" type="button" class="flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(district === myDistrict)" :aria-pressed="district === myDistrict" @click="show({ district: myDistrict })">
+                <MapPin :size="14" aria-hidden="true" /> My district <span class="opacity-70">· {{ districtNames[myDistrict] }}</span>
+            </button>
+            <label class="w-52">
+                <span class="sr-only">See another district</span>
+                <DistrictSelect v-model="otherDistrict" :districts="districts" :exclude="myDistrict ? [myDistrict] : []" placeholder="Other districts…" class="!rounded-full !py-2 text-[13px] font-bold" :class="otherDistrict ? '!border-navy' : ''" />
+            </label>
         </div>
 
         <p class="flex items-start justify-center gap-1.5 text-center text-[13px] font-medium text-outline">
@@ -158,7 +192,7 @@ const describe = (row) => describeRow(props.board, row, unit.value);
         <!-- Rankings -->
         <section class="card p-4 sm:p-6" :aria-label="label">
             <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
-                <h1 class="font-display text-lg font-bold text-navy-deep">{{ current ? `${current.name} · ` : '' }}{{ label }}</h1>
+                <h1 class="font-display text-lg font-bold text-navy-deep">{{ current ? `${current.name} · ` : '' }}{{ label }}{{ scope === 'country' ? ' · Malawi' : '' }}</h1>
                 <label class="relative w-full sm:w-60">
                     <span class="sr-only">Search players</span>
                     <Search :size="16" class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-outline" aria-hidden="true" />
@@ -172,7 +206,10 @@ const describe = (row) => describeRow(props.board, row, unit.value);
                         <span class="w-11 shrink-0 font-display text-sm font-bold text-outline">#{{ fmt(row.position) }}</span>
                         <Avatar :avatar="row.avatar" size="sm" />
                         <span class="min-w-0 flex-1">
-                            <span class="block truncate font-display font-bold text-navy-deep">{{ row.username }}</span>
+                            <span class="block truncate font-display font-bold text-navy-deep">
+                                {{ row.username }}
+                                <span v-if="!district && row.district" class="ml-1 text-xs font-semibold text-outline"><MapPin :size="11" class="inline -mt-0.5" aria-hidden="true" /> {{ districtNames[row.district] }}</span>
+                            </span>
                             <span class="block truncate text-xs font-medium text-outline">{{ describe(row).secondary }}</span>
                         </span>
                         <span class="shrink-0 text-right">
@@ -207,7 +244,9 @@ const describe = (row) => describeRow(props.board, row, unit.value);
                 </span>
             </div>
             <p v-else-if="$page.props.auth.user" class="mt-4 rounded-2xl bg-cream-low px-4 py-3 text-center text-sm font-medium text-ink-soft">
-                You're not on this board yet — play a ranked game to enter.
+                <template v-if="district && district !== myDistrict">You're not from {{ districtNames[district] }}, so you don't appear on this board.</template>
+                <template v-else-if="region && region !== myRegion">You're not in the {{ regionNames[region] }}, so you don't appear on this board.</template>
+                <template v-else>You're not on this board yet — play a ranked game to enter.</template>
             </p>
         </section>
 

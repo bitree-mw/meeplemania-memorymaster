@@ -40,7 +40,7 @@ const label = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { w
             </p>
         </div>
 
-        <nav class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]" aria-label="Game">
+        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Game">
             <div class="flex w-max gap-1 rounded-full bg-cream-high p-1">
                 <Link
                     v-for="g in games"

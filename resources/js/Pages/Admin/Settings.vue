@@ -57,7 +57,7 @@ const isChanged = (section, field) => JSON.stringify(forms[section]?.data[field]
             <p class="text-sm font-medium text-ink-soft">Changes apply to runs started after saving. Runs in progress keep the rules they began with.</p>
         </div>
 
-        <nav class="-mx-4 overflow-x-auto px-4 [scrollbar-width:none]" aria-label="Settings scope">
+        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Settings scope">
             <div class="flex w-max gap-1 rounded-full bg-cream-high p-1">
                 <Link
                     v-for="s in scopes"

@@ -9,9 +9,13 @@ use App\Models\GameMode;
 use App\Models\GameSession;
 use App\Models\PlayerAchievement;
 use App\Models\User;
+use App\Platform\AdminAccounts;
+use App\Platform\Districts;
+use App\Platform\PasswordResetLinks;
 use App\Platform\Presence\PresenceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -21,6 +25,7 @@ class PlayerController extends Controller
     {
         $search = trim((string) $request->query('search', ''));
         $filter = $request->query('filter');
+        $district = in_array($request->query('district'), Districts::keys(), true) ? $request->query('district') : null;
         $like = '%'.addcslashes($search, '%_\\').'%';
 
         $players = User::query()
@@ -28,6 +33,9 @@ class PlayerController extends Controller
             ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q->where('users.username', 'like', $like)->orWhere('users.email', 'like', $like)))
             ->when($filter === 'disabled', fn ($q) => $q->whereNotNull('users.disabled_at'))
             ->when($filter === 'admins', fn ($q) => $q->where('users.role', User::ROLE_ADMIN))
+            ->when($filter === 'players', fn ($q) => $q->where('users.role', User::ROLE_PLAYER))
+            ->when($filter === 'active', fn ($q) => $q->whereNull('users.disabled_at'))
+            ->when($district, fn ($q) => $q->where('users.district', $district))
             ->select('users.*', 'pp.total_points', 'pp.games_played', 'pp.current_daily_streak')
             ->orderByDesc('users.created_at')
             ->paginate(25)
@@ -38,16 +46,23 @@ class PlayerController extends Controller
                 'email' => $u->email,
                 'avatar' => $u->avatar ?? 'meeple',
                 'role' => $u->role,
+                'district' => Districts::name($u->district),
                 'disabled' => $u->isDisabled(),
                 'joined' => $u->created_at->toDateString(),
                 'total_points' => (int) $u->total_points,
                 'games_played' => (int) $u->games_played,
             ]);
 
-        return Inertia::render('Admin/Players', ['players' => $players, 'search' => $search, 'filter' => $filter]);
+        return Inertia::render('Admin/Players', [
+            'players' => $players,
+            'search' => $search,
+            'filter' => $filter,
+            'district' => $district,
+            'districts' => Districts::options(),
+        ]);
     }
 
-    public function show(User $player, StatisticsService $statistics, PresenceService $presence, GameRegistry $registry): Response
+    public function show(User $player, StatisticsService $statistics, PresenceService $presence, GameRegistry $registry, AdminAccounts $admins): Response
     {
         $profile = $statistics->profile($player->id);
         $stats = $statistics->allFor($player->id);
@@ -79,6 +94,7 @@ class PlayerController extends Controller
                 ...$player->toPublicArray(),
                 'email' => $player->email,
                 'role' => $player->role,
+                'district' => Districts::name($player->district),
                 'disabled' => $player->isDisabled(),
                 'disabled_reason' => $player->disabled_reason,
                 'joined' => $player->created_at->toDateString(),
@@ -100,6 +116,8 @@ class PlayerController extends Controller
             'achievements' => PlayerAchievement::where('user_id', $player->id)->with('achievement')->latest('unlocked_at')->get()
                 ->map(fn ($pa) => ['name' => $pa->achievement->name, 'unlocked_at' => $pa->unlocked_at->toIso8601String()]),
             'sessions' => $sessions,
+            'adminSlotsLeft' => $admins->slotsLeft(),
+            'maxAdmins' => User::MAX_ADMINS,
         ]);
     }
 
@@ -119,5 +137,14 @@ class PlayerController extends Controller
         $player->forceFill(['disabled_at' => null, 'disabled_reason' => null])->save();
 
         return back()->with('success', "{$player->username} has been re-enabled.");
+    }
+
+    public function sendPasswordReset(Request $request, User $player, PasswordResetLinks $links): RedirectResponse
+    {
+        if (! $links->send($player, $request->user())) {
+            throw ValidationException::withMessages(['reset' => 'A reset link was sent to this account moments ago. Try again in a minute.']);
+        }
+
+        return back()->with('success', "A password reset link has been emailed to {$player->username}. It expires in {$links->expiresInMinutes()} minutes.");
     }
 }

@@ -13,7 +13,7 @@ class AdminTest extends TestCase
 {
     public function test_only_admins_can_reach_the_dashboard(): void
     {
-        $this->get('/admin')->assertRedirect('/login');
+        $this->get('/admin')->assertRedirect('/admin/login');
         $this->actingAs(User::factory()->create())->get('/admin')->assertForbidden();
 
         $this->actingAs(User::factory()->admin()->create());

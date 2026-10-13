@@ -33,7 +33,8 @@ cp .env.example .env            # set DB_* for MySQL
 php artisan key:generate
 php artisan migrate --seed      # games, modes, achievements, first season (no fake players)
 npm run build                   # or: npm run dev
-php artisan games:make-admin you@example.com   # after registering
+php artisan games:create-admin admin you@example.com   # prompts for the password (stored hashed)
+php artisan games:make-admin you@example.com          # or promote an existing account
 ```
 
 With Laravel Herd the site is served at `http://meeplemania-memorymaster.test`; otherwise `php artisan serve`. For production also run `php artisan optimize`.
@@ -45,6 +46,16 @@ Scheduler (`php artisan schedule:work` locally, cron in production):
 | `games:expire-sessions` | every 5 min | Close idle runs and Timed Rush runs past their clock (verified points are kept) |
 | `games:daily-rollover` | hourly, idempotent | Create today's Try Once challenges, award yesterday's badges, snapshot leaderboards |
 | `games:prune-presence` | hourly | Delete stale presence rows |
+| `games:prune-reset-links` | hourly | Delete expired password reset links |
+
+## Accounts and administration
+
+- **Sign-in** accepts a username or an email. Admins sign in at `/admin/login` (non-admin accounts are refused there).
+- **Admins** are capped at 5 accounts (`User::MAX_ADMINS`, deactivated ones included). Create them in **Admin → Admins** or with `games:create-admin`, or promote an existing account from its page in **Admin → Players**; revoke access there too.
+- **Monitoring:** admin sign-ins, failed or refused admin sign-ins, and every change made in the admin area are recorded in `admin_activity_logs` and shown in **Admin → Admins**.
+- **Password reset links** look like `APP_URL/reset-password/{username}/{64-char secret}`. Only a SHA-256 hash of the secret is stored; a link works once, expires after 60 minutes (`auth.passwords.users.expire`), is cancelled by a newer link, and resetting signs the account out everywhere. Players request one from `/forgot-password`; admins can send one from a player's page. Mail goes through the `MAIL_*` settings (`log` locally, so links land in `storage/logs/laravel.log`).
+- **Districts:** players choose one of Malawi's 28 districts when signing up (`App\Platform\Districts`); accounts without one can set it once in settings. After that it is locked: players request a change from settings and an admin approves or declines it in **Admin → Districts**. Approval moves the player and deletes all their game progress (runs, points, statistics, achievements, rank history); the player sees a pop-up about the decision on their next visit (`App\Platform\DistrictChanges`).
+- **Standings:** every leaderboard can be viewed country-wide, for the player's region (Northern / Central / Southern), for their district, or for any other district, with positions ranked within that area.
 
 Tests: `php artisan test` (MySQL database `meeplemania_memorymaster_test`) and `npm test` (Vitest).
 

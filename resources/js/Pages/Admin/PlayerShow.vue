@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { ArrowLeft, Ban, CircleCheck, ExternalLink } from 'lucide-vue-next';
+import { ArrowLeft, Ban, CircleCheck, ExternalLink, KeyRound, ShieldCheck, ShieldOff } from 'lucide-vue-next';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import Avatar from '@/Components/Avatar.vue';
 import Pagination from '@/Components/Pagination.vue';
@@ -15,6 +15,8 @@ const props = defineProps({
     perGame: { type: Array, required: true },
     achievements: { type: Array, required: true },
     sessions: { type: Object, required: true },
+    adminSlotsLeft: { type: Number, required: true },
+    maxAdmins: { type: Number, required: true },
 });
 
 const reason = ref('');
@@ -24,6 +26,19 @@ function disable() {
     router.post(`/admin/players/${props.player.id}/disable`, { reason: reason.value }, { preserveScroll: true });
 }
 const enable = () => router.post(`/admin/players/${props.player.id}/enable`, {}, { preserveScroll: true });
+
+function sendReset() {
+    if (!confirm(`Email ${props.player.username} a one-time link to choose a new password?`)) return;
+    router.post(`/admin/players/${props.player.id}/password-reset`, {}, { preserveScroll: true });
+}
+function promote() {
+    if (!confirm(`Give ${props.player.username} full admin access? (${props.adminSlotsLeft} of ${props.maxAdmins} admin slots left)`)) return;
+    router.post(`/admin/players/${props.player.id}/promote`, {}, { preserveScroll: true });
+}
+function revoke() {
+    if (!confirm(`Remove admin access from ${props.player.username}? Their account stays active as a player.`)) return;
+    router.post(`/admin/players/${props.player.id}/revoke`, {}, { preserveScroll: true });
+}
 
 function voidSession(uuid) {
     if (!confirm('Void this result? It will be removed from statistics and leaderboards.')) return;
@@ -41,7 +56,7 @@ function voidSession(uuid) {
             <Avatar :avatar="player.avatar" size="lg" />
             <div class="min-w-0 flex-1">
                 <h1 class="text-2xl font-extrabold text-navy-deep">{{ player.username }}</h1>
-                <p class="text-sm font-medium text-ink-soft">{{ player.email }} · joined {{ player.joined }} · {{ player.role }}<span v-if="player.is_online" class="font-bold text-emerald-deep"> · online</span></p>
+                <p class="text-sm font-medium text-ink-soft">{{ player.email }} · {{ player.district ?? 'no district' }} · joined {{ player.joined }} · {{ player.role }}<span v-if="player.is_online" class="font-bold text-emerald-deep"> · online</span></p>
                 <p v-if="player.disabled" class="mt-1 text-sm font-semibold text-ruby-deep">Disabled{{ player.disabled_reason ? `: ${player.disabled_reason}` : '' }}</p>
                 <Link :href="`/players/${player.username}`" class="mt-1 inline-flex items-center gap-1 text-xs font-bold text-amber-deep hover:underline">Public profile <ExternalLink :size="12" /></Link>
             </div>
@@ -50,7 +65,18 @@ function voidSession(uuid) {
             </div>
             <div v-else-if="player.id !== $page.props.auth.user.id" class="flex flex-wrap gap-2">
                 <input v-model="reason" class="field !w-56 !py-2" placeholder="Reason (optional)" maxlength="255" aria-label="Reason for disabling" />
-                <button type="button" class="btn btn-danger btn-sm" @click="disable"><Ban :size="16" /> Disable</button>
+                <button type="button" class="btn btn-danger btn-sm" @click="disable"><Ban :size="16" /> Deactivate</button>
+            </div>
+            <div class="flex w-full flex-wrap items-center gap-2 border-t border-cream-high pt-4">
+                <span class="eyebrow mr-1">Account</span>
+                <button type="button" class="btn btn-ghost btn-sm" @click="sendReset"><KeyRound :size="16" /> Send password reset link</button>
+                <template v-if="player.id !== $page.props.auth.user.id">
+                    <button v-if="player.role === 'admin'" type="button" class="btn btn-ghost btn-sm" @click="revoke"><ShieldOff :size="16" /> Revoke admin access</button>
+                    <button v-else-if="!player.disabled" type="button" class="btn btn-ghost btn-sm" :disabled="adminSlotsLeft === 0" :title="adminSlotsLeft === 0 ? `All ${maxAdmins} admin slots are taken` : null" @click="promote">
+                        <ShieldCheck :size="16" /> Make admin <span class="text-xs text-outline">({{ adminSlotsLeft }} of {{ maxAdmins }} slots left)</span>
+                    </button>
+                </template>
+                <p v-for="key in ['reset', 'admin']" v-show="$page.props.errors[key]" :key="key" class="w-full text-sm font-semibold text-ruby-deep">{{ $page.props.errors[key] }}</p>
             </div>
         </section>
 

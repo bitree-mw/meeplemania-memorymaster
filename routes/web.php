@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LeaderboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RulesController;
+use App\Http\Middleware\LogAdminActivity;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,11 +33,13 @@ Route::get('/players/{username}', [ProfileController::class, 'show'])->name('pla
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:auth');
+    Route::get('/admin/login', [AuthenticatedSessionController::class, 'createAdmin'])->name('admin.login');
+    Route::post('/admin/login', [AuthenticatedSessionController::class, 'storeAdmin'])->middleware('throttle:auth');
     Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
     Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('throttle:auth');
     Route::get('/forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetController::class, 'email'])->middleware('throttle:auth')->name('password.email');
-    Route::get('/reset-password/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
+    Route::get('/reset-password/{username}/{token}', [PasswordResetController::class, 'reset'])->where('token', '[A-Za-z0-9]{64}')->name('password.reset');
     Route::post('/reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:auth')->name('password.update');
 });
 
@@ -46,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+    Route::post('/profile/district-request', [ProfileController::class, 'requestDistrictChange'])->middleware('throttle:6,1')->name('profile.district-request');
+    Route::delete('/profile/district-request', [ProfileController::class, 'cancelDistrictChange'])->name('profile.district-request.cancel');
+    Route::post('/district-notices/{districtRequest}/dismiss', [ProfileController::class, 'dismissDistrictNotice'])->name('district-notice.dismiss');
 });
 
 /*
@@ -73,7 +79,7 @@ Route::prefix('api/presence')->group(function () {
 | Administration
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->middleware(['auth', 'can:access-admin'])->name('admin.')->group(function () {
+Route::prefix('admin')->middleware(['auth', 'can:access-admin', LogAdminActivity::class])->name('admin.')->group(function () {
     Route::get('/', Admin\DashboardController::class)->name('dashboard');
 
     Route::get('/settings', [Admin\SettingsController::class, 'edit'])->name('settings');
@@ -84,6 +90,16 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin'])->name('admin.')
     Route::get('/players/{player}', [Admin\PlayerController::class, 'show'])->name('players.show');
     Route::post('/players/{player}/disable', [Admin\PlayerController::class, 'disable'])->name('players.disable');
     Route::post('/players/{player}/enable', [Admin\PlayerController::class, 'enable'])->name('players.enable');
+    Route::post('/players/{player}/password-reset', [Admin\PlayerController::class, 'sendPasswordReset'])->name('players.password-reset');
+    Route::post('/players/{player}/promote', [Admin\AdminAccountController::class, 'promote'])->name('players.promote');
+    Route::post('/players/{player}/revoke', [Admin\AdminAccountController::class, 'revoke'])->name('players.revoke');
+
+    Route::get('/district-requests', [Admin\DistrictRequestController::class, 'index'])->name('district-requests');
+    Route::post('/district-requests/{districtRequest}/approve', [Admin\DistrictRequestController::class, 'approve'])->name('district-requests.approve');
+    Route::post('/district-requests/{districtRequest}/reject', [Admin\DistrictRequestController::class, 'reject'])->name('district-requests.reject');
+
+    Route::get('/admins', [Admin\AdminAccountController::class, 'index'])->name('admins');
+    Route::post('/admins', [Admin\AdminAccountController::class, 'store'])->name('admins.store');
 
     Route::get('/reviews', [Admin\ReviewController::class, 'index'])->name('reviews');
     Route::post('/sessions/{session}/approve', [Admin\ReviewController::class, 'approve'])->name('sessions.approve');
@@ -98,6 +114,7 @@ Route::prefix('admin')->middleware(['auth', 'can:access-admin'])->name('admin.')
     Route::delete('/seasons/{season}', [Admin\SeasonController::class, 'destroy'])->name('seasons.destroy');
 
     Route::get('/achievements', [Admin\AchievementController::class, 'index'])->name('achievements');
+    Route::post('/achievements', [Admin\AchievementController::class, 'store'])->name('achievements.store');
     Route::put('/achievements/{achievement}', [Admin\AchievementController::class, 'update'])->name('achievements.update');
 
     Route::get('/leaderboards', Admin\LeaderboardReviewController::class)->name('leaderboards');

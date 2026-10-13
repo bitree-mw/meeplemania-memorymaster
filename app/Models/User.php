@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['username', 'email', 'password', 'avatar'])]
+#[Fillable(['username', 'email', 'password', 'avatar', 'district'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -22,6 +22,9 @@ class User extends Authenticatable
     public const ROLE_PLAYER = 'player';
 
     public const ROLE_ADMIN = 'admin';
+
+    /** Hard cap on accounts holding the admin role (see App\Platform\AdminAccounts). */
+    public const MAX_ADMINS = 5;
 
     /** Preset avatar keys a player can pick from (see resources/js/game/avatars.js). */
     public const AVATARS = ['meeple', 'crown', 'dice', 'shield', 'star', 'gem', 'heart', 'clover', 'rocket', 'ghost'];

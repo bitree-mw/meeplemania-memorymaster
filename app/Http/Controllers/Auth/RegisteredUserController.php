@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Platform\Districts;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class RegisteredUserController extends Controller
 {
     public function create(): Response
     {
-        return Inertia::render('Auth/Register', ['avatars' => User::AVATARS]);
+        return Inertia::render('Auth/Register', ['avatars' => User::AVATARS, 'districts' => Districts::options()]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -27,6 +28,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')],
             'password' => ['required', 'confirmed', Password::defaults()],
             'avatar' => ['nullable', Rule::in(User::AVATARS)],
+            'district' => ['required', Rule::in(Districts::keys())],
         ], [
             'username.regex' => 'Usernames may only contain letters, numbers and underscores.',
         ]);

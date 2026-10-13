@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
-import { CalendarDays, Compass, Crosshair, Flame, Gamepad2, Layers, Lock, Settings, Timer, Trophy } from 'lucide-vue-next';
+import { CalendarDays, Compass, Crosshair, Flame, Gamepad2, Layers, Lock, MapPin, Settings, Timer, Trophy } from 'lucide-vue-next';
 import Avatar from '@/Components/Avatar.vue';
 import { ICONS, colorVars } from '@/game/palette';
 import { END_REASONS, compact, fmt, relativeTime, seconds, shortDate } from '@/game/format';
@@ -47,6 +47,7 @@ function statusLabel(g) {
             <div class="min-w-0 flex-1">
                 <h1 class="truncate text-3xl font-extrabold text-navy-deep sm:text-4xl">{{ player.username }}</h1>
                 <p class="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm font-medium text-ink-soft sm:justify-start">
+                    <span v-if="player.district" class="inline-flex items-center gap-1"><MapPin :size="15" /> {{ player.district }}</span>
                     <span class="inline-flex items-center gap-1"><CalendarDays :size="15" /> Joined {{ shortDate(player.joined) }}</span>
                     <span v-if="player.is_online" class="font-bold text-emerald-deep">● Online</span>
                 </p>

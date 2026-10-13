@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Auth\Events\PasswordReset;
+use App\Platform\AdminActivity;
+use App\Platform\PasswordResetLinks;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -16,6 +15,8 @@ use Inertia\Response;
 
 class PasswordResetController extends Controller
 {
+    public function __construct(private PasswordResetLinks $links) {}
+
     public function request(): Response
     {
         return Inertia::render('Auth/ForgotPassword', ['status' => session('status')]);
@@ -23,46 +24,52 @@ class PasswordResetController extends Controller
 
     public function email(Request $request): RedirectResponse
     {
-        $request->validate(['email' => ['required', 'email']]);
+        $data = $request->validate(['login' => ['required', 'string', 'max:255']]);
 
-        Password::sendResetLink($request->only('email'));
+        $field = str_contains($data['login'], '@') ? 'email' : 'username';
+        $user = User::where($field, $data['login'])->first();
 
-        // Same response whether or not the address exists, to avoid account enumeration.
-        return back()->with('status', 'If that email is registered, a reset link is on its way.');
+        if ($user) {
+            $this->links->send($user);
+        }
+
+        // Same response whether or not the account exists, to avoid account enumeration.
+        return back()->with('status', 'If that account exists, a reset link is on its way to its email address.');
     }
 
-    public function reset(Request $request, string $token): Response
+    public function reset(string $username, string $token): Response
     {
+        $link = $this->links->find($username, $token);
+
         return Inertia::render('Auth/ResetPassword', [
-            'email' => $request->query('email'),
+            'username' => $username,
             'token' => $token,
+            'valid' => $link !== null,
+            'expires_at' => $link?->expires_at->toIso8601String(),
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
+    public function update(Request $request, AdminActivity $activity): RedirectResponse
     {
-        $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
+        $data = $request->validate([
+            'username' => ['required', 'string', 'max:24'],
+            'token' => ['required', 'string', 'max:64'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $status = Password::reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user) use ($request) {
-                $user->forceFill([
-                    'password' => $request->password,
-                    'remember_token' => Str::random(60),
-                ])->save();
+        $link = $this->links->find($data['username'], $data['token']);
 
-                event(new PasswordReset($user));
-            }
-        );
-
-        if ($status !== Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages(['email' => [__($status)]]);
+        if (! $link) {
+            throw ValidationException::withMessages(['token' => 'This reset link is invalid, has already been used or has expired. Request a new one.']);
         }
 
-        return redirect('/login')->with('status', __($status));
+        $user = $this->links->reset($link, $data['password']);
+
+        if ($user->isAdmin()) {
+            $activity->record('password_reset', 'Changed password with a reset link', $user);
+        }
+
+        return redirect($user->isAdmin() ? '/admin/login' : '/login')
+            ->with('status', 'Your password has been reset. Sign in with your new password.');
     }
 }

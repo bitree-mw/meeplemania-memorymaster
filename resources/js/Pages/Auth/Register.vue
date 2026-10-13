@@ -2,11 +2,15 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthCard from '@/Components/AuthCard.vue';
 import Avatar from '@/Components/Avatar.vue';
+import DistrictSelect from '@/Components/DistrictSelect.vue';
 import { AVATARS } from '@/game/palette';
 
-defineProps({ avatars: { type: Array, required: true } });
+defineProps({
+    avatars: { type: Array, required: true },
+    districts: { type: Array, required: true },
+});
 
-const form = useForm({ username: '', email: '', password: '', password_confirmation: '', avatar: 'meeple' });
+const form = useForm({ username: '', email: '', password: '', password_confirmation: '', avatar: 'meeple', district: null });
 const submit = () => form.post('/register', { onFinish: () => form.reset('password', 'password_confirmation') });
 </script>
 
@@ -33,6 +37,12 @@ const submit = () => form.post('/register', { onFinish: () => form.reset('passwo
                 <label class="label" for="email">Email</label>
                 <input id="email" v-model="form.email" type="email" class="field" autocomplete="email" required />
                 <p v-if="form.errors.email" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.email }}</p>
+            </div>
+            <div>
+                <label class="label" for="district">District</label>
+                <DistrictSelect id="district" v-model="form.district" :districts="districts" required />
+                <p class="mt-1 text-xs font-medium text-outline">You'll compete on this district's and region's leaderboards. Choose carefully: only an admin can change it later, and a change resets your progress.</p>
+                <p v-if="form.errors.district" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.district }}</p>
             </div>
             <div>
                 <label class="label" for="password">Password</label>

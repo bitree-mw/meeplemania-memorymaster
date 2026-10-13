@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Games\Board;
 use App\Games\GameRegistry;
 use App\Games\LeaderboardService;
+use App\Platform\Districts;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -42,6 +43,8 @@ class LeaderboardController extends Controller
             'game' => ['nullable', Rule::in(['all', ...$registry->slugs()])],
             'board' => ['nullable', Rule::in(array_unique([...Board::GAME_CATEGORIES, ...Board::PLATFORM_CATEGORIES]))],
             'duration' => ['nullable', 'integer', Rule::in($durations)],
+            'district' => ['nullable', Rule::in(Districts::keys())],
+            'region' => ['nullable', Rule::in(array_keys(Districts::regions()))],
             'search' => ['nullable', 'string', 'max:24'],
             'page' => ['nullable', 'integer', 'min:1', 'max:10000'],
         ]);
@@ -52,7 +55,7 @@ class LeaderboardController extends Controller
         $duration = $category === 'timed' ? (int) ($data['duration'] ?? $durations[0]) : null;
 
         return [
-            new Board($game, $category, $duration),
+            new Board($game, $category, $duration, $data['district'] ?? null, isset($data['district']) ? null : ($data['region'] ?? null)),
             trim((string) ($data['search'] ?? '')) ?: null,
             (int) ($data['page'] ?? 1),
         ];
@@ -69,6 +72,10 @@ class LeaderboardController extends Controller
             'duration' => $board->duration,
             'durations' => config('games.platform.timed_durations'),
             'categories' => array_map(fn ($c) => ['key' => $c, 'label' => Board::LABELS[$c]], $categories),
+            'district' => $board->district,
+            'districts' => Districts::options(),
+            'region' => $board->region,
+            'regions' => Districts::regionOptions(),
             'label' => $board->label(),
             'rule' => $board->rule(),
         ];

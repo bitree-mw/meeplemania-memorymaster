@@ -3,6 +3,8 @@
 namespace App\Http\Middleware;
 
 use App\Games\StatisticsService;
+use App\Models\DistrictChangeRequest;
+use App\Platform\DistrictChanges;
 use App\Platform\Presence\PresenceService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -34,11 +36,15 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user ? [
                     ...$user->toPublicArray(),
                     'email' => $user->email,
+                    'district' => $user->district,
                     'is_admin' => $user->isAdmin(),
                 ] : null,
             ],
             // Compact header stats; null for guests.
             'player' => fn () => $user ? $this->playerSummary($user->id) : null,
+            // Pop-up telling a player an admin approved or declined their district change.
+            'districtNotice' => fn () => $user ? app(DistrictChanges::class)->noticeFor($user) : null,
+            'pendingDistrictRequests' => fn () => $user?->isAdmin() ? DistrictChangeRequest::where('status', DistrictChangeRequest::PENDING)->count() : null,
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

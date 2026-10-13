@@ -5,6 +5,7 @@ namespace App\Games;
 use App\Models\GameSeason;
 use App\Models\GameSession;
 use App\Models\LeaderboardSnapshot;
+use App\Platform\Districts;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
@@ -28,6 +29,21 @@ class LeaderboardService
      * (level, score, points, games, avg_unit_ms, accuracy, achieved_at).
      */
     public function rankedQuery(Board $board): ?Builder
+    {
+        // Filtering happens before ROW_NUMBER(), so district boards rank players within the district.
+        $query = $this->baseQuery($board)
+            ?->when($board->district, fn ($q, $district) => $q->where('u.district', $district))
+            ->when(! $board->district && $board->region, fn ($q) => $q->whereIn('u.district', Districts::inRegion($board->region)));
+
+        if ($query) {
+            $query->addSelect('u.district');
+            $query->when($query->groups, fn ($q) => $q->groupBy('u.district'));
+        }
+
+        return $query;
+    }
+
+    private function baseQuery(Board $board): ?Builder
     {
         $gameId = $board->game?->id;
 

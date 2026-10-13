@@ -4,7 +4,7 @@ import AuthCard from '@/Components/AuthCard.vue';
 
 defineProps({ status: { type: String, default: null } });
 
-const form = useForm({ email: '', password: '', remember: true });
+const form = useForm({ login: '', password: '', remember: true });
 const submit = () => form.post('/login', { onFinish: () => form.reset('password') });
 </script>
 
@@ -14,9 +14,9 @@ const submit = () => form.post('/login', { onFinish: () => form.reset('password'
         <p v-if="status" class="mb-4 rounded-2xl bg-emerald-soft px-4 py-3 text-sm font-semibold text-emerald-deep">{{ status }}</p>
         <form class="space-y-4" @submit.prevent="submit">
             <div>
-                <label class="label" for="email">Email</label>
-                <input id="email" v-model="form.email" type="email" class="field" autocomplete="email" required autofocus />
-                <p v-if="form.errors.email" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.email }}</p>
+                <label class="label" for="login">Username or email</label>
+                <input id="login" v-model="form.login" type="text" class="field" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus />
+                <p v-if="form.errors.login" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.login }}</p>
             </div>
             <div>
                 <div class="flex items-center justify-between">

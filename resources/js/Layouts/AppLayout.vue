@@ -4,6 +4,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { Flame, Trophy, Volume2, VolumeX } from 'lucide-vue-next';
 import BrandMark from '@/Components/BrandMark.vue';
 import BottomDock from '@/Components/BottomDock.vue';
+import DistrictNotice from '@/Components/DistrictNotice.vue';
 import FlashToast from '@/Components/FlashToast.vue';
 import UserMenu from '@/Components/UserMenu.vue';
 import { usePresence } from '@/composables/usePresence';
@@ -31,6 +32,7 @@ const nav = computed(() => [
 <template>
     <div class="min-h-dvh">
         <FlashToast />
+        <DistrictNotice />
 
         <header class="sticky top-0 z-30 px-3 pt-3 sm:px-4">
             <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full bg-white/95 py-2 pl-2.5 pr-2.5 shadow-card ring-1 ring-cream-high backdrop-blur-md sm:pl-3 sm:pr-3">

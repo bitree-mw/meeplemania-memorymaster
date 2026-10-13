@@ -3,9 +3,11 @@
 namespace App\Games;
 
 use App\Models\Game;
+use App\Platform\Districts;
 
 /**
- * Identifies one leaderboard: a game (or all games) + category (+ Timed Rush duration).
+ * Identifies one leaderboard: a game (or all games) + category (+ Timed Rush duration),
+ * country-wide or limited to one district.
  */
 final class Board
 {
@@ -39,11 +41,15 @@ final class Board
         public readonly ?Game $game,
         public readonly string $category,
         public readonly ?int $duration = null,
+        // Malawi district or region slug (App\Platform\Districts); both null = country-wide standings.
+        public readonly ?string $district = null,
+        public readonly ?string $region = null,
     ) {}
 
     public function key(): string
     {
-        return ($this->game?->slug ?? 'all').':'.$this->category.($this->category === 'timed' ? ':'.$this->duration : '');
+        return ($this->game?->slug ?? 'all').':'.$this->category.($this->category === 'timed' ? ':'.$this->duration : '')
+            .($this->district ? '@'.$this->district : ($this->region ? '@region-'.$this->region : ''));
     }
 
     public function isPlatform(): bool
@@ -53,7 +59,8 @@ final class Board
 
     public function label(): string
     {
-        return self::LABELS[$this->category].($this->category === 'timed' ? " · {$this->duration}s" : '');
+        return self::LABELS[$this->category].($this->category === 'timed' ? " · {$this->duration}s" : '')
+            .($this->district ? ' · '.Districts::name($this->district) : ($this->region ? ' · '.Districts::regions()[$this->region] : ''));
     }
 
     public function rule(): string

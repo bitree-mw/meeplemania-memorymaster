@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -17,10 +15,11 @@ class AuthenticationTest extends TestCase
             'password' => 'secret-password-1',
             'password_confirmation' => 'secret-password-1',
             'avatar' => 'dice',
+            'district' => 'lilongwe',
         ])->assertRedirect('/');
 
         $this->assertAuthenticated();
-        $this->assertDatabaseHas('users', ['username' => 'MeepleFan', 'avatar' => 'dice', 'role' => 'player']);
+        $this->assertDatabaseHas('users', ['username' => 'MeepleFan', 'avatar' => 'dice', 'role' => 'player', 'district' => 'lilongwe']);
 
         auth()->logout();
         $this->post('/register', [
@@ -28,7 +27,7 @@ class AuthenticationTest extends TestCase
             'email' => 'other@example.com',
             'password' => 'secret-password-1',
             'password_confirmation' => 'secret-password-1',
-        ])->assertSessionHasErrors('username');
+        ])->assertSessionHasErrors(['username', 'district']);
     }
 
     public function test_registration_cannot_escalate_to_admin(): void
@@ -38,6 +37,7 @@ class AuthenticationTest extends TestCase
             'email' => 'sneaky@example.com',
             'password' => 'secret-password-1',
             'password_confirmation' => 'secret-password-1',
+            'district' => 'zomba',
             'role' => 'admin',
         ]);
 
@@ -48,10 +48,35 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/login', ['email' => $user->email, 'password' => 'password'])->assertRedirect('/');
+        $this->post('/login', ['login' => $user->email, 'password' => 'password'])->assertRedirect('/');
         $this->assertAuthenticatedAs($user);
 
         $this->post('/logout')->assertRedirect('/');
+        $this->assertGuest();
+
+        $this->post('/login', ['login' => $user->username, 'password' => 'password'])->assertRedirect('/');
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_admins_sign_in_on_the_admin_login_page(): void
+    {
+        $this->get('/admin/login')->assertOk();
+
+        $admin = User::factory()->admin()->create();
+
+        $this->post('/admin/login', ['login' => $admin->email, 'password' => 'password'])->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($admin);
+
+        $this->post('/logout');
+        $this->post('/admin/login', ['login' => $admin->username, 'password' => 'password'])->assertRedirect('/admin');
+        $this->assertAuthenticatedAs($admin);
+    }
+
+    public function test_players_cannot_sign_in_on_the_admin_login_page(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post('/admin/login', ['login' => $user->email, 'password' => 'password'])->assertSessionHasErrors('login');
         $this->assertGuest();
     }
 
@@ -59,7 +84,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/login', ['email' => $user->email, 'password' => 'nope'])->assertSessionHasErrors('email');
+        $this->post('/login', ['login' => $user->email, 'password' => 'nope'])->assertSessionHasErrors('login');
         $this->assertGuest();
     }
 
@@ -67,33 +92,11 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->disabled()->create();
 
-        $this->post('/login', ['email' => $user->email, 'password' => 'password'])->assertSessionHasErrors('email');
+        $this->post('/login', ['login' => $user->email, 'password' => 'password'])->assertSessionHasErrors('login');
         $this->assertGuest();
 
         $this->actingAs($user)->get('/profile/edit')->assertRedirect('/login');
         $this->assertGuest();
-    }
-
-    public function test_password_reset_flow(): void
-    {
-        Notification::fake();
-        $user = User::factory()->create();
-
-        $this->post('/forgot-password', ['email' => $user->email])->assertSessionHas('status');
-
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $this->post('/reset-password', [
-                'token' => $notification->token,
-                'email' => $user->email,
-                'password' => 'brand-new-password',
-                'password_confirmation' => 'brand-new-password',
-            ])->assertRedirect('/login');
-
-            return true;
-        });
-
-        $this->post('/login', ['email' => $user->email, 'password' => 'brand-new-password']);
-        $this->assertAuthenticatedAs($user);
     }
 
     public function test_profile_can_be_updated(): void

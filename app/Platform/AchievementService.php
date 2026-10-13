@@ -30,6 +30,12 @@ class AchievementService
         'daily_rank' => ['direction' => 'max', 'label' => 'Try Once finishing position'],
     ];
 
+    /** Badge icons an admin can pick; mirrors ICONS in resources/js/game/palette.js. */
+    public const ICONS = [
+        'Trophy', 'Medal', 'Award', 'Crown', 'Star', 'Sparkles', 'Zap', 'Flame', 'Layers', 'LayoutGrid', 'Eye',
+        'TrendingUp', 'Gamepad2', 'Compass', 'Dices', 'ShieldCheck', 'Gem', 'Heart', 'Clover', 'Anchor', 'Hourglass', 'Rocket', 'Ghost',
+    ];
+
     /**
      * @param  array<string, int|null>  $context  metric => value
      * @return Collection<int, Achievement> Newly unlocked achievements.

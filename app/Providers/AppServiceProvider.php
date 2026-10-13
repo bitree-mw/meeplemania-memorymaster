@@ -33,6 +33,6 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('game-start', fn (Request $request) => Limit::perMinute(20)->by($byPlayer($request)));
         RateLimiter::for('game-round', fn (Request $request) => Limit::perMinute(240)->by($byPlayer($request)));
         RateLimiter::for('presence', fn (Request $request) => Limit::perMinute(10)->by($request->session()->getId()));
-        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(6)->by(strtolower((string) $request->input('email')).'|'.$request->ip()));
+        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(6)->by(strtolower((string) $request->input('login', $request->input('email'))).'|'.$request->ip()));
     }
 }
