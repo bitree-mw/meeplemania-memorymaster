@@ -12,8 +12,21 @@ const root = ref(null);
 const close = (e) => {
     if (root.value && !root.value.contains(e.target)) open.value = false;
 };
-onMounted(() => document.addEventListener('click', close));
-onBeforeUnmount(() => document.removeEventListener('click', close));
+const closeOnEscape = (e) => {
+    if (e.key === 'Escape') open.value = false;
+};
+// The layout persists across Inertia visits, so the menu must close itself when a visit starts.
+let stopListening = null;
+onMounted(() => {
+    document.addEventListener('click', close);
+    document.addEventListener('keydown', closeOnEscape);
+    stopListening = router.on('start', () => (open.value = false));
+});
+onBeforeUnmount(() => {
+    document.removeEventListener('click', close);
+    document.removeEventListener('keydown', closeOnEscape);
+    stopListening?.();
+});
 
 const logout = () => router.post('/logout');
 </script>

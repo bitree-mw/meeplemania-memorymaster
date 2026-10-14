@@ -74,9 +74,20 @@ const SRC = '/images/meeple-figure.png';
 }
 .head { position: absolute; inset: 0; transform-origin: 50% 40%; }
 .head-img { clip-path: polygon(20.75% 0, 79.25% 0, 79.25% 41%, 20.75% 41%); }
-.torso { clip-path: polygon(20.75% 37.5%, 79.25% 37.5%, 79.25% 75.2%, 20.75% 75.2%); }
-.arm-left { clip-path: polygon(0 38%, 24% 38%, 24% 58%, 0 58%); transform-origin: 21.7% 48%; }
-.arm-right { clip-path: polygon(76% 38%, 100% 38%, 100% 58%, 76% 58%); transform-origin: 78.3% 48%; }
+/* The torso stops at the body outline beside the arms (30%→25.5% left, 69%→73.5% right), so no
+   stub of arm stays behind when an arm rotates. Each arm is everything outside that line plus a
+   round shoulder joint centred on its pivot, sized to the arm's thickness where it meets the body
+   (ry 8.4%/8.6% of the box height; rx = ry × 266/212 keeps it circular). A circle is unchanged by
+   rotation, so bending never opens a gap; the torso on top hides the inner half. */
+.torso { clip-path: polygon(30% 37.5%, 69% 37.5%, 73.5% 58%, 79.25% 58%, 79.25% 75.2%, 20.75% 75.2%, 20.75% 58%, 25.5% 58%); }
+.arm-left {
+    clip-path: polygon(0 38%, 30% 38%, 29.54% 40.03%, 31.68% 40.37%, 33.69% 41.05%, 35.48% 42.04%, 36.98% 43.3%, 38.12% 44.79%, 38.84% 46.43%, 39.13% 48.15%, 38.97% 49.88%, 38.37% 51.55%, 37.34% 53.09%, 35.95% 54.42%, 34.23% 55.5%, 32.28% 56.27%, 30.17% 56.71%, 27.99% 56.79%, 25.84% 56.51%, 25.5% 58%, 0 58%);
+    transform-origin: 28.6% 48.4%;
+}
+.arm-right {
+    clip-path: polygon(100% 38%, 69% 38%, 69.51% 40.28%, 67.41% 40.69%, 65.45% 41.43%, 63.71% 42.46%, 62.27% 43.75%, 61.18% 45.24%, 60.48% 46.88%, 60.21% 48.6%, 60.38% 50.32%, 60.97% 51.98%, 61.97% 53.51%, 63.34% 54.86%, 65.01% 55.95%, 66.93% 56.76%, 69.01% 57.25%, 71.17% 57.4%, 73.32% 57.2%, 73.5% 58%, 100% 58%);
+    transform-origin: 71% 48.8%;
+}
 .leg-left { clip-path: polygon(0 69.5%, 49.1% 69.5%, 49.1% 100%, 0 100%); transform-origin: 34% 71.5%; }
 .leg-right { clip-path: polygon(49.1% 69.5%, 100% 69.5%, 100% 100%, 49.1% 100%); transform-origin: 64% 71.5%; }
 

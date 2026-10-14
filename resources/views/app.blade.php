@@ -6,7 +6,7 @@
         <meta name="theme-color" content="#fcf9f2">
         <meta name="description" content="Memory Master — watch the sequence, repeat it from memory and climb the Meeple Mania leaderboards.">
         <link rel="icon" type="image/png" href="/images/meeplemania-logo.png">
-        <title inertia>{{ config('app.name') }}</title>
+        <title inertia>MeepleMania Games</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @inertiaHead
     </head>

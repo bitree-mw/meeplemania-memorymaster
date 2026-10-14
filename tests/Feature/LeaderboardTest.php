@@ -3,9 +3,12 @@
 namespace Tests\Feature;
 
 use App\Games\Board;
+use App\Games\GameSettings;
 use App\Games\LeaderboardService;
 use App\Models\Game;
+use App\Models\GameSeason;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -140,6 +143,29 @@ class LeaderboardTest extends TestCase
         $rows = collect($this->rows($this->board('memory-master', 'level')))->keyBy('user_id');
         $this->assertSame(1, $rows[$b->id]['movement']);
         $this->assertSame(-1, $rows[$a->id]['movement']);
+    }
+
+    public function test_a_new_season_starts_the_season_board_from_zero(): void
+    {
+        $today = CarbonImmutable::parse(app(GameSettings::class)->today());
+        GameSeason::create(['name' => 'Season 1', 'starts_on' => $today, 'ends_on' => $today->addDay()]);
+        GameSeason::create(['name' => 'Season 2', 'starts_on' => $today->addDays(2), 'ends_on' => $today->addDays(30)]);
+
+        [$a, $b] = User::factory()->count(2)->create();
+        $this->actingAs($a);
+        $this->playTo('memory-master', 4);
+        $this->actingAs($b);
+        $this->playTo('memory-master', 1);
+        app(LeaderboardService::class)->snapshot($this->board(null, 'season'));
+
+        $this->travel(2)->days();
+        $this->assertSame([], $this->rows($this->board(null, 'season')));
+
+        $points = $this->playTo('memory-master', 1)->summary['final_score'];
+        $rows = $this->rows($this->board(null, 'season'));
+        $this->assertSame([$b->id], array_column($rows, 'user_id'));
+        $this->assertSame($points, (int) $rows[0]['points']);
+        $this->assertNull($rows[0]['movement'], 'Last season’s ranks are not compared with');
     }
 
     public function test_the_page_is_public_and_shows_the_viewers_position(): void

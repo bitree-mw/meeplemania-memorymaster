@@ -272,8 +272,13 @@ class LeaderboardService
             return $rows->map(fn ($r) => $r + ['movement' => null]);
         }
 
+        // Weekly and season boards restart from zero, so a snapshot from the previous week or
+        // season is not a fair comparison: no arrows show until the period has its own snapshot.
+        $periodStart = $this->periodStart($board);
+
         $previousDate = LeaderboardSnapshot::where('board', $board->key())
             ->whereDate('snapshot_on', '<', $this->settings->today())
+            ->when($periodStart, fn ($q) => $q->whereDate('snapshot_on', '>=', $periodStart))
             ->max('snapshot_on');
 
         $previous = $previousDate
@@ -290,6 +295,16 @@ class LeaderboardService
 
             return $r;
         });
+    }
+
+    /** First local date of the period a resetting board covers (Y-m-d), or null for boards that never reset. */
+    private function periodStart(Board $board): ?string
+    {
+        return match ($board->category) {
+            'weekly' => $this->settings->now()->startOfWeek(CarbonImmutable::MONDAY)->toDateString(),
+            'season' => $this->currentSeason()?->starts_on->toDateString(),
+            default => null,
+        };
     }
 
     private function perPage(): int

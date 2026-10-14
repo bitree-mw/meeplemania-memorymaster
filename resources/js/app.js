@@ -8,7 +8,7 @@ import { syncQueue } from '@/game/sync';
 syncQueue.flushAll();
 
 createInertiaApp({
-    title: (title) => (title ? `${title} · Meeple Mania` : 'Meeple Mania Games'),
+    title: (title) => (title ? `${title} • MeepleMania Games` : 'MeepleMania Games'),
     // Pages are code-split: each one loads only when first visited.
     resolve: async (name) => {
         const pages = import.meta.glob('./Pages/**/*.vue');
