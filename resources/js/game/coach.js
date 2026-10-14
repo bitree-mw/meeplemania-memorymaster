@@ -7,7 +7,7 @@ const LINES = {
         input: (s, st) => (st.index ? `Nice, ${st.index} of ${s.sequence.length}. Keep going!` : 'Your turn! Repeat the sequence!'),
     },
     'meeple-pairs': {
-        preview: () => 'Memorize where every picture is!',
+        preview: () => 'Memorise where every picture is!',
         input: (s, st) => {
             const spare = s.mismatches_allowed - st.mismatches;
             const pairs = `Find the pairs: ${s.cards.length / 2 - st.found} to go.`;
@@ -20,7 +20,7 @@ const LINES = {
         input: (s, st) => `Tap the lit cells: ${s.lit.length - st.count} left.`,
     },
     'dice-digits': {
-        preview: (s) => `Memorize the roll: ${s.dice.length} dice, left to right!`,
+        preview: (s) => `Memorise the roll: ${s.dice.length} dice, left to right!`,
         input: (s, st) => (st.index ? `${st.index} of ${s.dice.length} entered. Keep going!` : 'Enter the dice in order!'),
     },
     'spot-the-swap': {
@@ -55,7 +55,7 @@ export function explainLoss(game, round) {
             return `That was mismatch number ${spec.mismatches_allowed + 1} — the board allows ${spec.mismatches_allowed}.`;
         case 'pattern-peek': {
             const found = inputs.filter((c) => spec.lit.includes(c)).length;
-            return `That cell wasn't lit. You'd found ${found} of ${spec.lit.length} cells.`;
+            return `That cell wasn't lit. You had found ${found} of ${spec.lit.length} cells.`;
         }
         case 'spot-the-swap':
             return `Token #${spec.changed + 1} changed, but you picked #${inputs[0] + 1}.`;

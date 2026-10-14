@@ -28,7 +28,7 @@ class DiceDigits extends GameDefinition
 
     public function description(): string
     {
-        return 'Memorize the roll, then enter every die in order.';
+        return 'Memorise the roll, then enter every die in order.';
     }
 
     public function icon(): string

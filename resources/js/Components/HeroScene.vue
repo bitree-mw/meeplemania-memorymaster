@@ -14,7 +14,7 @@ const lit = [0, 4, 5, 7];
 </script>
 
 <template>
-    <div class="scene" role="img" aria-label="A game table with pieces from the five Meeple Mania games around the Meeple Mania badge">
+    <div class="scene" role="img" aria-label="A game table with pieces from the five MeepleMania games around the MeepleMania badge">
         <!-- Table felt -->
         <div class="felt" aria-hidden="true" />
 

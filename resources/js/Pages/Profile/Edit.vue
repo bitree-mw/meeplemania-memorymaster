@@ -25,7 +25,7 @@ const password = useForm({ current_password: '', password: '', password_confirma
 const change = useForm({ to_district: null, reason: '' });
 
 function saveProfile() {
-    if (!locked.value && profile.district && !confirm('Your district can only be set once. To change it later you will need an admin, and a change resets your game progress. Continue?')) return;
+    if (!locked.value && profile.district && !confirm('Your district can only be set once. To change it later, you’ll need an admin, and changing it resets your game progress. Continue?')) return;
     profile.transform((data) => (locked.value ? { ...data, district: undefined } : data)).put('/profile', { preserveScroll: true });
 }
 const savePassword = () => password.put('/profile/password', { preserveScroll: true, onSuccess: () => password.reset() });

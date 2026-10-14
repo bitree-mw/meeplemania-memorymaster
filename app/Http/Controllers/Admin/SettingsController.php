@@ -86,7 +86,7 @@ class SettingsController extends Controller
                     $n('timed_sync_grace_seconds', 'Timed Rush late-sync window', 5, 600, 's', 'Results arriving later than this after the clock ends are sent to review.'),
                     $n('session_idle_minutes', 'Expire idle runs after', 5, 1440, 'min'),
                 ]],
-                ['key' => 'streaks', 'title' => 'Streak rules', 'description' => 'A day counts toward the daily streak when a ranked run in any game meets this bar.', 'fields' => [
+                ['key' => 'streaks', 'title' => 'Streak rules', 'description' => 'A day counts towards the daily streak when a ranked run in any game meets this bar.', 'fields' => [
                     $n('min_rounds_for_qualifying_session', 'Rounds needed for a qualifying run', 1, 50),
                 ]],
                 ['key' => 'presence', 'title' => 'Online presence', 'description' => 'Heartbeat cadence and how long a visitor counts as online.', 'fields' => [

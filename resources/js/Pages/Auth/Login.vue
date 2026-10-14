@@ -31,7 +31,7 @@ const submit = () => form.post('/login', { onFinish: () => form.reset('password'
             <button type="submit" class="btn btn-primary btn-lg w-full" :disabled="form.processing">Sign in</button>
         </form>
         <template #footer>
-            New to Meeple Mania? <Link href="/register" class="font-bold text-amber-deep hover:underline">Create an account</Link>
+            New to MeepleMania? <Link href="/register" class="font-bold text-amber-deep hover:underline">Create an account</Link>
             <span class="mx-1">·</span>
             <Link href="/play/classic" class="font-bold text-navy-soft hover:underline">Play as guest</Link>
         </template>

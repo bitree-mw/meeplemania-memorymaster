@@ -51,7 +51,7 @@ class PatternPeek extends GameDefinition
         return [
             'Several cells light up at once, then go dark.',
             'Tap every cell that was lit, in any order.',
-            'A wrong cell loses the round. Patterns grow and the grid gets bigger as you level up.',
+            'A wrong cell loses the round. Patterns grow, and the grid gets bigger as you level up.',
         ];
     }
 

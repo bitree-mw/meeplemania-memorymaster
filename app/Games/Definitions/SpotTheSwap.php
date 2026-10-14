@@ -33,7 +33,7 @@ class SpotTheSwap extends GameDefinition
 
     public function description(): string
     {
-        return 'Memorize the tokens. After a blink, one has changed — find it.';
+        return 'Memorise the tokens. After a blink, one of them has changed — find it.';
     }
 
     public function icon(): string
@@ -55,8 +55,8 @@ class SpotTheSwap extends GameDefinition
     {
         return [
             'Study the board of meeple tokens.',
-            'The board blinks, and exactly one token changes colour or shape.',
-            'Tap the token that changed. More tokens and shorter looks as you level up.',
+            'The board blinks and exactly one token changes colour or shape.',
+            'Tap the token that changed. Expect more tokens and shorter looks as you level up.',
         ];
     }
 

@@ -48,6 +48,6 @@ class RegisteredUserController extends Controller
         $request->session()->regenerate();
         $device->claim($request);
 
-        return redirect()->intended('/')->with('success', "Welcome to Meeple Mania, {$user->username}!");
+        return redirect()->intended('/')->with('success', "Welcome to MeepleMania, {$user->username}!");
     }
 }

@@ -64,7 +64,7 @@ const dailyLabel = computed(() => {
         <section class="card relative overflow-hidden">
             <div class="grid grid-cols-1 items-center gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-8">
                 <div class="order-2 md:order-1">
-                    <span class="eyebrow !text-[12px] !text-amber-deep">Meeple Mania Games</span>
+                    <span class="eyebrow !text-[12px] !text-amber-deep">MeepleMania Games</span>
                     <h1 class="mt-1 text-[32px] font-extrabold leading-[1.08] tracking-tight text-navy-deep sm:text-[44px]">
                         {{ me ? 'Ready to test your memory?' : 'Five memory games. One very proud meeple.' }}
                     </h1>

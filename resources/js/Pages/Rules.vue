@@ -42,7 +42,7 @@ const example = computed(() => {
                 <div>
                     <h3 class="text-lg font-bold text-navy-deep">Level Builder</h3>
                     <p class="mt-1 text-sm font-medium leading-relaxed text-ink-soft">
-                        Start small and climb. Every level is bigger, faster or shorter to look at. Losing a round costs a life and gives you a fresh puzzle at the same level; when your lives run out, the run ends and your points are kept.
+                        Start small and climb. Each level is bigger or faster, or gives you less time to look. Losing a round costs a life and gives you a fresh puzzle at the same level; when your lives run out, the run ends and your points are kept.
                     </p>
                 </div>
             </article>
@@ -51,7 +51,7 @@ const example = computed(() => {
                 <div>
                     <h3 class="text-lg font-bold text-navy-deep">Timed Rush</h3>
                     <p class="mt-1 text-sm font-medium leading-relaxed text-ink-soft">
-                        Pick {{ durations.join(', ').replace(/, (\d+)$/, ' or $1') }} seconds. After a {{ countdown }}-second countdown, clear as many rounds as you can. Rounds get harder every few rounds; a miss costs a few points but the clock keeps running. Each clock length has its own leaderboard.
+                        Pick {{ durations.join(', ').replace(/, (\d+)$/, ' or $1') }} seconds. After a {{ countdown }}-second countdown, clear as many rounds as you can. The puzzles get harder every few rounds; a miss costs a few points but the clock keeps running. Each clock length has its own leaderboard.
                     </p>
                 </div>
             </article>
@@ -60,7 +60,7 @@ const example = computed(() => {
                 <div>
                     <h3 class="text-lg font-bold text-navy-deep">Try Once</h3>
                     <p class="mt-1 text-sm font-medium leading-relaxed text-ink-soft">
-                        A daily challenge per game: everyone gets exactly the same puzzles. You get <strong>one ranked attempt per game per day</strong> (account required), locked in the moment you start. Later runs are practice and never replace your result. Challenges reset at midnight ({{ timezone }}); the top three earn badges.
+                        A daily challenge for each game: everyone gets exactly the same puzzles. You get <strong>one ranked attempt per game per day</strong> (account required), locked in the moment you start. Later runs are practice and never replace your result. Challenges reset at midnight ({{ timezone }}); the top three earn badges.
                     </p>
                 </div>
             </article>

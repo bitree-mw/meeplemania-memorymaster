@@ -29,9 +29,9 @@ final class Board
 
     public const RULES = [
         'level' => 'Highest Level Builder level cleared. Ties: whoever reached it first.',
-        'timed' => 'Best single Timed Rush score at this duration. Ties: whoever set it first.',
+        'timed' => 'Best single Timed Rush score at this clock length. Ties: whoever set it first.',
         'once' => "Today's Try Once score. Ties: higher level, then lower total response time, then earlier finish.",
-        'fastest' => 'Lowest average answer time per item in a Level Builder run reaching level 5+. Ties: whoever set it first.',
+        'fastest' => 'Lowest average answer time per item in a Level Builder run that reached level 5 or higher. Ties: whoever set it first.',
         'weekly' => 'Points from ranked games this week (Monday start). Ties: fewer games played, then earlier sign-up.',
         'season' => 'Points from ranked games in the current season. Ties: fewer games played, then earlier sign-up.',
         'all_time' => 'Lifetime points from ranked games. Ties: fewer games played, then earlier sign-up.',

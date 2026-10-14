@@ -66,7 +66,7 @@ class ReviewController extends Controller
 
         $this->review($request, $session, ['is_flagged' => false], $statistics, $leaderboards);
 
-        return back()->with('success', 'Result approved and counted toward rankings.');
+        return back()->with('success', 'Result approved and counted towards the rankings.');
     }
 
     public function void(Request $request, GameSession $session, StatisticsService $statistics, LeaderboardService $leaderboards): RedirectResponse

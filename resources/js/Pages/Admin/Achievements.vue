@@ -41,7 +41,7 @@ const save = (a) =>
     <div class="space-y-5">
         <div>
             <h1 class="text-3xl font-extrabold text-navy-deep">Achievements</h1>
-            <p class="text-sm font-medium text-ink-soft">Unlock conditions are a metric and a threshold. Each badge is awarded once per player; changing a threshold never revokes existing unlocks.</p>
+            <p class="text-sm font-medium text-ink-soft">Each unlock condition is a metric plus a threshold. Each badge is awarded once per player; changing a threshold never revokes existing unlocks.</p>
         </div>
 
         <form class="card space-y-4 p-5 ring-2 ring-amber-soft" @submit.prevent="create">

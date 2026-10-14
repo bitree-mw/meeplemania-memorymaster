@@ -65,7 +65,7 @@ const accuracyDeg = computed(() => Math.round(((props.summary?.accuracy ?? 0) / 
                 <span class="eyebrow">Pattern breakdown</span>
                 <h2 class="mt-1 text-2xl font-bold text-navy-deep">Almost! Let's look at where the pattern slipped.</h2>
                 <p class="mt-1.5 font-medium text-ink-soft">
-                    <template v-if="integrity">Those taps were faster than we can verify as human, so this run won't count toward rankings. An admin will review it.</template>
+                    <template v-if="integrity">Those taps were too fast for us to verify as human, so this run won't count towards the rankings. An admin will review it.</template>
                     <template v-else>{{ explainLoss(game.slug, round) }}</template>
                 </p>
             </div>

@@ -18,7 +18,7 @@ const climb = computed(() => {
     if (!o?.rank_after) return null;
     if (!o.rank_before) return { text: `You entered the all-time rankings at #${o.rank_after}!` };
     const delta = o.rank_before - o.rank_after;
-    return delta > 0 ? { text: `Climbed +${delta} spot${delta === 1 ? '' : 's'} to all-time rank #${o.rank_after}!` } : null;
+    return delta > 0 ? { text: `You climbed ${delta} place${delta === 1 ? '' : 's'} to all-time rank #${o.rank_after}!` } : null;
 });
 
 const bests = computed(() => (props.outcome?.personal_bests ?? []).map((b) => labels[b]).filter(Boolean));

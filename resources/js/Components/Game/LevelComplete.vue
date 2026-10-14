@@ -27,17 +27,17 @@ const isPersonalBest = computed(() => props.previousBestLevel !== null && level.
     <div class="mx-auto flex w-full max-w-lg flex-col items-center motion-safe:animate-rise">
         <div class="relative mb-1 rounded-2xl bg-white px-5 py-3 text-center text-[15px] font-medium text-ink-soft shadow-card">
             <template v-if="isPersonalBest">“New personal best! You're climbing the rankings!”</template>
-            <template v-else>“Incredible memory! You nailed <strong class="text-amber-deep">Level {{ level }}</strong>!”</template>
+            <template v-else>“Incredible memory! You nailed <strong class="text-amber-deep">level {{ level }}</strong>!”</template>
             <span class="absolute -bottom-2 left-1/2 size-4 -translate-x-1/2 rotate-45 bg-white" aria-hidden="true" />
         </div>
         <MeepleMascot mood="cheer" :size="74" class="mt-3" />
 
         <section class="card mt-1 w-full p-6 text-center sm:p-8" aria-labelledby="level-complete-title">
             <span class="inline-flex items-center gap-2 rounded-full bg-amber-soft px-3 py-1 font-display text-sm font-bold text-amber-ink">
-                <span class="size-2 rounded-full bg-amber" aria-hidden="true" /> Level {{ level }} Cleared!
+                <span class="size-2 rounded-full bg-amber" aria-hidden="true" /> Level {{ level }} cleared!
             </span>
-            <h2 id="level-complete-title" class="mt-3 text-[34px] font-extrabold leading-tight tracking-tight text-navy-deep sm:text-[42px]">Awesome Memory!</h2>
-            <p class="mt-1 font-medium text-outline">Pattern memorized and repeated flawlessly</p>
+            <h2 id="level-complete-title" class="mt-3 text-[34px] font-extrabold leading-tight tracking-tight text-navy-deep sm:text-[42px]">Awesome memory!</h2>
+            <p class="mt-1 font-medium text-outline">Pattern memorised and repeated perfectly</p>
 
             <dl class="mt-6 grid grid-cols-3 divide-x divide-cream-high rounded-3xl bg-cream-low px-2 py-4 ring-1 ring-cream-high">
                 <div class="px-1">
@@ -71,7 +71,7 @@ const isPersonalBest = computed(() => props.previousBestLevel !== null && level.
             <!-- On phones the floating button below takes this role. -->
             <button type="button" class="btn btn-primary btn-lg mt-6 hidden w-full sm:inline-flex" autofocus @click="$emit('next')">
                 <Play :size="20" fill="currentColor" aria-hidden="true" />
-                Next Level (Level {{ level + 1 }})
+                Next level (level {{ level + 1 }})
             </button>
             <div class="mt-3 flex gap-3">
                 <Link href="/leaderboard" class="btn btn-ghost flex-1" prefetch><TrendingUp :size="18" aria-hidden="true" /> Leaderboard</Link>

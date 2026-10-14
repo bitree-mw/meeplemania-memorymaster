@@ -21,7 +21,7 @@ const reasons = {
     late_sync: 'Timed Rush results arrived long after the clock ended (possibly offline)',
 };
 
-const approve = (uuid) => confirm('Approve this result and count it toward rankings?') && router.post(`/admin/sessions/${uuid}/approve`, {}, { preserveScroll: true });
+const approve = (uuid) => confirm('Approve this result and count it towards the rankings?') && router.post(`/admin/sessions/${uuid}/approve`, {}, { preserveScroll: true });
 const voidIt = (uuid) => confirm('Void this result permanently?') && router.post(`/admin/sessions/${uuid}/void`, {}, { preserveScroll: true });
 </script>
 

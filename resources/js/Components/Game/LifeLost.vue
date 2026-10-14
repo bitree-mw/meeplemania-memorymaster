@@ -41,7 +41,7 @@ const { el: reviewEl, width: reviewWidth } = useElementWidth(300);
 
         <!-- On phones the floating button below takes this role. -->
         <button type="button" class="btn btn-primary btn-lg mt-5 hidden w-full sm:inline-flex" autofocus @click="$emit('next')">
-            <Play :size="20" fill="currentColor" aria-hidden="true" /> Try a new puzzle (Level {{ round.spec.level }})
+            <Play :size="20" fill="currentColor" aria-hidden="true" /> Try a new puzzle (level {{ round.spec.level }})
         </button>
 
         <FloatingNext :level="round.spec.level" kind="retry" @click="$emit('next')" />

@@ -37,7 +37,7 @@ class MeeplePairs extends GameDefinition
 
     public function description(): string
     {
-        return 'Memorize the board before it flips, then match every pair.';
+        return 'Memorise the board before it flips, then match every pair.';
     }
 
     public function icon(): string
@@ -58,9 +58,9 @@ class MeeplePairs extends GameDefinition
     public function howToPlay(): array
     {
         return [
-            'All cards are shown face-up for a moment. Memorize where each picture is.',
+            'All the cards are shown face up for a moment. Memorise where each picture is.',
             'Cards flip face-down. Tap two cards to find a matching pair.',
-            'Match every pair to clear the board. Too many mismatches and the board is lost.',
+            'Match every pair to clear the board. Make too many mismatches and you lose the round.',
         ];
     }
 

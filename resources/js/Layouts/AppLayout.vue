@@ -65,7 +65,7 @@ const nav = computed(() => [
                     <template v-if="user && player">
                         <span class="chip px-2.5 bg-amber-mist text-amber-ink ring-1 ring-amber-soft sm:px-3" :title="`${player.daily_streak}-day play streak`">
                             <Flame :size="16" class="text-orange" aria-hidden="true" />
-                            {{ player.daily_streak }}<span class="hidden sm:inline">&nbsp;Day Streak</span>
+                            {{ player.daily_streak }}<span class="hidden sm:inline">&nbsp;day streak</span>
                             <span class="sr-only"> day streak</span>
                         </span>
                         <span class="chip hidden bg-cream-low text-ink ring-1 ring-cream-high sm:inline-flex" title="Total points">

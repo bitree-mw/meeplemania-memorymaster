@@ -16,7 +16,7 @@ const submit = () => form.post('/register', { onFinish: () => form.reset('passwo
 
 <template>
     <Head title="Create account" />
-    <AuthCard title="Join Meeple Mania" subtitle="Save your progress, earn badges and enter the Daily Cup.">
+    <AuthCard title="Join MeepleMania" subtitle="Save your progress, earn badges and take on the daily Try Once challenge.">
         <form class="space-y-4" @submit.prevent="submit">
             <fieldset>
                 <legend class="label">Pick an avatar</legend>
@@ -41,7 +41,7 @@ const submit = () => form.post('/register', { onFinish: () => form.reset('passwo
             <div>
                 <label class="label" for="district">District</label>
                 <DistrictSelect id="district" v-model="form.district" :districts="districts" required />
-                <p class="mt-1 text-xs font-medium text-outline">You'll compete on this district's and region's leaderboards. Choose carefully: only an admin can change it later, and a change resets your progress.</p>
+                <p class="mt-1 text-xs font-medium text-outline">You'll compete on the leaderboards for this district and its region. Choose carefully: only an admin can change it later, and changing it resets your progress.</p>
                 <p v-if="form.errors.district" class="mt-1 text-sm font-semibold text-ruby-deep">{{ form.errors.district }}</p>
             </div>
             <div>

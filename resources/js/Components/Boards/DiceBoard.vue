@@ -42,7 +42,7 @@ function slot(i) {
 
 <template>
     <div class="flex w-full flex-col items-center justify-between gap-4" :style="{ maxWidth: `${box.w}px` }">
-        <div class="flex flex-wrap justify-center gap-2" :style="{ maxWidth: `${perRow * (dieSize + 8)}px` }" :aria-label="phase === 'preview' ? 'Memorize this roll' : 'Your entry'" role="group">
+        <div class="flex flex-wrap justify-center gap-2" :style="{ maxWidth: `${perRow * (dieSize + 8)}px` }" :aria-label="phase === 'preview' ? 'Memorise this roll' : 'Your entry'" role="group">
             <span v-for="i in count" :key="`${spec.key}-${i}`" class="relative flex flex-col items-center" :class="{ 'motion-safe:animate-pop': phase === 'preview' }" :style="{ animationDelay: `${(i - 1) * 40}ms` }">
                 <Die :value="slot(i - 1).value" :tone="slot(i - 1).tone" :size="dieSize" />
                 <span v-if="review && slot(i - 1).tone === 'wrong'" class="mt-1 rounded-full bg-ruby-soft px-1.5 text-[11px] font-bold text-ruby-deep">you: {{ slot(i - 1).given }}</span>
