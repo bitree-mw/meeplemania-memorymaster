@@ -22,6 +22,9 @@ export function compact(n, decimals = null) {
 /** Points: exact to three decimal places once shortened. */
 export const points = (n) => compact(n, 3);
 
+/** Points in the rankings: two decimal places once shortened (12.34k). */
+export const rankPoints = (n) => compact(n, 2);
+
 export function seconds(ms, digits = 2) {
     if (ms === null || ms === undefined) return '—';
     return `${(ms / 1000).toFixed(digits)}s`;

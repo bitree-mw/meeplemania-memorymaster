@@ -1,4 +1,4 @@
-import { compact, fmt, seconds } from './format';
+import { rankPoints, seconds } from './format';
 
 const plural = (n, word) => `${n} ${word}${Number(n) === 1 ? '' : 's'}`;
 const accuracy = (r) => (r.expected_inputs ? `${Math.round((r.correct_inputs / r.expected_inputs) * 100)}% acc` : null);
@@ -11,15 +11,15 @@ export function describeRow(board, r, unit = 'item') {
         case 'fastest':
             return { primary: `${seconds(r.avg_unit_ms)}/${unit}`, secondary: `Lvl ${r.level}` };
         case 'timed':
-            return { primary: `${fmt(r.score)} pts`, secondary: 'Best run' };
+            return { primary: `${rankPoints(r.score)} pts`, secondary: 'Best run' };
         case 'once':
-            return { primary: `${fmt(r.score)} pts`, secondary: `Lvl ${r.level} · ${Math.round(r.accuracy)}% acc` };
+            return { primary: `${rankPoints(r.score)} pts`, secondary: `Lvl ${r.level} · ${Math.round(r.accuracy)}% acc` };
         case 'weekly':
         case 'season':
-            return { primary: `${fmt(r.points)} pts`, secondary: plural(r.games, 'game') };
+            return { primary: `${rankPoints(r.points)} pts`, secondary: plural(r.games, 'game') };
         case 'all_time':
             return {
-                primary: `${compact(r.points)} pts`,
+                primary: `${rankPoints(r.points)} pts`,
                 secondary: r.level !== undefined ? `Best Lvl ${r.level} · ${plural(r.games, 'game')}` : `${plural(r.games, 'game')}${r.streak ? ` · ${r.streak}-day streak` : ''}`,
             };
         default:

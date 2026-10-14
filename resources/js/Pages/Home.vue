@@ -6,7 +6,7 @@ import HeroScene from '@/Components/HeroScene.vue';
 import RoamingMeeple from '@/Components/Mascot/RoamingMeeple.vue';
 import { usePresence } from '@/composables/usePresence';
 import { sounds } from '@/game/audio';
-import { fmt, points } from '@/game/format';
+import { fmt, points, rankPoints } from '@/game/format';
 import { ICONS, colorVars } from '@/game/palette';
 
 const props = defineProps({
@@ -198,7 +198,7 @@ const dailyLabel = computed(() => {
                         <Lock v-if="!me" :size="12" aria-hidden="true" /> {{ dailyLabel }}
                     </p>
                     <p class="mt-1 flex-1 text-xs font-semibold text-ink-soft">
-                        <template v-if="daily.leader"><Trophy :size="12" class="inline text-amber" /> Leader: {{ daily.leader.username }} · {{ fmt(daily.leader.score) }} pts</template>
+                        <template v-if="daily.leader"><Trophy :size="12" class="inline text-amber" /> Leader: {{ daily.leader.username }} · {{ rankPoints(daily.leader.score) }} pts</template>
                         <template v-else>No scores yet today — set the record!</template>
                     </p>
                     <Link :href="me ? `/play/${game.slug}/once` : '/login'" class="btn btn-ghost mt-3" prefetch>
