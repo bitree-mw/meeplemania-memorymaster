@@ -305,8 +305,9 @@ onBeforeUnmount(() => {
         :style="accent"
     >
         <!-- HUD -->
+        <!-- The left group asks for a fixed width (basis-0 + min-width), so the status text changing never re-wraps this row. -->
         <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="flex min-w-0 items-center gap-2">
+            <div class="flex min-w-[11rem] flex-1 basis-0 items-center gap-2">
                 <button type="button" class="grid size-10 shrink-0 place-items-center rounded-full bg-white text-ink-soft shadow-sm ring-1 ring-cream-high hover:text-ink" aria-label="Exit to games" title="Exit" @click="exitArena">
                     <X :size="19" />
                 </button>

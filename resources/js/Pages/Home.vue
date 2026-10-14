@@ -6,7 +6,7 @@ import HeroScene from '@/Components/HeroScene.vue';
 import RoamingMeeple from '@/Components/Mascot/RoamingMeeple.vue';
 import { usePresence } from '@/composables/usePresence';
 import { sounds } from '@/game/audio';
-import { compact, fmt } from '@/game/format';
+import { fmt, points } from '@/game/format';
 import { ICONS, colorVars } from '@/game/palette';
 
 const props = defineProps({
@@ -75,7 +75,7 @@ const dailyLabel = computed(() => {
                     <dl v-if="me" class="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                         <div class="rounded-2xl bg-cream-low px-3 py-2.5 ring-1 ring-cream-high">
                             <dt class="eyebrow">Points</dt>
-                            <dd class="font-display text-lg font-extrabold text-navy-deep">{{ compact(me.total_points) }}</dd>
+                            <dd class="font-display text-lg font-extrabold text-navy-deep">{{ points(me.total_points) }}</dd>
                         </div>
                         <div class="rounded-2xl bg-cream-low px-3 py-2.5 ring-1 ring-cream-high">
                             <dt class="eyebrow">Streak</dt>

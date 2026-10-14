@@ -29,9 +29,8 @@ class LeaderboardController extends Controller
         $user = $request->user();
         $me = $user ? $leaderboards->entryFor($board, $user->id) : null;
 
-        // Not on the page being viewed: show where they stand, two places either side.
-        $onPage = $me && collect($result['rows'])->contains(fn ($row) => (int) $row['user_id'] === $user->id);
-        $around = $me && ! $onPage && ! $search ? $leaderboards->around($board, (int) $me['position']) : [];
+        // Below the podium: show where they stand, two places either side.
+        $around = $me && ! $search && (int) $me['position'] > 3 ? $leaderboards->around($board, (int) $me['position']) : [];
 
         return Inertia::render('Leaderboard', [
             ...self::boardProps($board, $registry),

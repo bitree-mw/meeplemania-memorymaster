@@ -101,6 +101,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        // One device per account: re-hashing the password ends every other session on its next
+        // request (App\Http\Middleware\SingleSession). This session keeps the fresh hash.
+        $guard = Auth::guard('web');
+        $guard->logoutOtherDevices($data['password']);
+        $request->session()->put('password_hash_web', $guard->hashPasswordForCookie($user->fresh()->getAuthPassword()));
+
         if ($user->isAdmin()) {
             $this->activity->record('login', $adminArea ? 'Signed in on the admin page' : 'Signed in on the player page', $user);
         }

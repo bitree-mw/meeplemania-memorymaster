@@ -9,7 +9,7 @@ import FlashToast from '@/Components/FlashToast.vue';
 import UserMenu from '@/Components/UserMenu.vue';
 import { usePresence } from '@/composables/usePresence';
 import { useSound } from '@/composables/useSound';
-import { compact } from '@/game/format';
+import { compact, points } from '@/game/format';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -70,7 +70,7 @@ const nav = computed(() => [
                         </span>
                         <span class="chip hidden bg-cream-low text-ink ring-1 ring-cream-high sm:inline-flex" title="Total points">
                             <Trophy :size="15" class="text-amber" aria-hidden="true" />
-                            {{ compact(player.total_points) }}
+                            {{ points(player.total_points) }}
                         </span>
                     </template>
 

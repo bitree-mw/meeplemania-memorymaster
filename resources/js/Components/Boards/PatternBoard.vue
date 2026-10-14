@@ -38,7 +38,7 @@ function state(i) {
 <template>
     <div
         class="grid rounded-[1.75rem] bg-navy p-2.5 shadow-lift sm:p-3"
-        :style="{ width: `${side}px`, height: `${side}px`, gap: `${gap}px`, gridTemplateColumns: `repeat(${spec.size}, minmax(0, 1fr))` }"
+        :style="{ width: `${side}px`, height: `${side}px`, gap: `${gap}px`, gridTemplateColumns: `repeat(${spec.size}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${spec.size}, minmax(0, 1fr))` }"
         role="group"
         :aria-label="`Pattern grid, ${spec.size} by ${spec.size}`"
     >
@@ -46,7 +46,7 @@ function state(i) {
             v-for="i in cells"
             :key="`${spec.key}-${i}`"
             type="button"
-            class="cell grid place-items-center rounded-xl"
+            class="cell grid min-h-0 min-w-0 place-items-center overflow-hidden rounded-xl"
             :class="`is-${state(i)}`"
             :disabled="phase !== 'input'"
             :aria-label="`Row ${Math.floor(i / spec.size) + 1}, column ${(i % spec.size) + 1}${state(i) === 'found' ? ', found' : ''}`"

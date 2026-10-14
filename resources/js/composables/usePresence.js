@@ -47,8 +47,10 @@ async function beat(force = false) {
     try {
         counts.value = await request('POST', '/api/presence/heartbeat', { playing: playing.value });
         localStorage.setItem(COUNTS_KEY, JSON.stringify(counts.value));
-    } catch {
-        // Presence is best effort; try again next interval.
+    } catch (error) {
+        // Signed out because the account signed in on another device: reload to show why.
+        if (error?.status === 401) window.location.reload();
+        // Otherwise presence is best effort; try again next interval.
     }
 }
 

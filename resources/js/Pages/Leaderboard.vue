@@ -24,7 +24,7 @@ const props = defineProps({
     meta: { type: Object, required: true },
     podium: { type: Array, required: true },
     me: { type: Object, default: null },
-    // Two places either side of the viewer, when they aren't on the page being shown.
+    // Two places either side of the viewer, when they are below the podium.
     around: { type: Array, default: () => [] },
     totalRanked: { type: Number, default: 0 },
     season: { type: Object, default: null },

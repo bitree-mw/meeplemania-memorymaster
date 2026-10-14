@@ -34,7 +34,8 @@ const badges = {
                 <span v-if="status" class="rounded-full px-2 py-0.5 font-display text-[10px] font-bold tracking-wider" :class="badges[tone]">{{ status }}</span>
             </div>
             <Transition mode="out-in" enter-from-class="opacity-0 translate-y-1" leave-to-class="opacity-0 -translate-y-1" enter-active-class="transition duration-200" leave-active-class="transition duration-150">
-                <p :key="message" class="text-[14px] font-medium leading-snug text-ink-soft sm:text-base" aria-live="polite">“{{ message }}”</p>
+                <!-- In play (compact) the bubble is always two lines tall, so a longer line never resizes the board below. -->
+                <p :key="message" class="text-[14px] font-medium leading-snug text-ink-soft sm:text-base" :class="compact ? 'line-clamp-2 min-h-[2.75em]' : ''" aria-live="polite">“{{ message }}”</p>
             </Transition>
         </div>
 

@@ -2,12 +2,25 @@ const number = new Intl.NumberFormat();
 
 export const fmt = (n) => number.format(Number(n ?? 0));
 
-export function compact(n) {
+/**
+ * Short form from 10,000 up: 12k, 1.2m. With `decimals` (points use 3) it keeps
+ * that many places, cut off rather than rounded so it never shows more than was
+ * earned: 12,345 → 12.345k, 1,234,567 → 1.234m.
+ */
+export function compact(n, decimals = null) {
     n = Number(n ?? 0);
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}m`;
-    if (n >= 10_000) return `${Math.round(n / 1000)}k`;
+    const short = (value, unit) => {
+        const factor = 10 ** decimals;
+        return `${(Math.floor(value * factor) / factor).toFixed(decimals)}${unit}`;
+    };
+
+    if (n >= 1_000_000) return decimals === null ? `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}m` : short(n / 1_000_000, 'm');
+    if (n >= 10_000) return decimals === null ? `${Math.round(n / 1000)}k` : short(n / 1000, 'k');
     return fmt(n);
 }
+
+/** Points: exact to three decimal places once shortened. */
+export const points = (n) => compact(n, 3);
 
 export function seconds(ms, digits = 2) {
     if (ms === null || ms === undefined) return '—';

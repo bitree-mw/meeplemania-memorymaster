@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Games\GameSettings;
+use App\Http\Middleware\SingleSession;
 use App\Models\User;
 use App\Platform\Device;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -54,6 +55,38 @@ class GuestAccessTest extends TestCase
         $this->get('/')->assertInertia(fn (Assert $page) => $page->where('games.0.daily.leader', null));
     }
 
+    public function test_signing_in_on_another_device_signs_out_the_old_one(): void
+    {
+        $user = User::factory()->create();
+        $deviceA = str_repeat('a', 40);
+        $deviceB = str_repeat('b', 40);
+
+        $this->defaultCookies = [Device::COOKIE => $deviceA];
+        $this->post('/login', ['login' => $user->email, 'password' => 'password'])->assertRedirect('/');
+        $sessionA = session()->getId();
+
+        $this->app['auth']->forgetGuards();
+        session()->flush();
+        $this->defaultCookies = [Device::COOKIE => $deviceB];
+        $this->post('/login', ['login' => $user->email, 'password' => 'password'])->assertRedirect('/');
+        $sessionB = session()->getId();
+
+        // Device A's next request: signed out, and told why.
+        $this->app['auth']->forgetGuards();
+        session()->flush();
+        $this->defaultCookies = [Device::COOKIE => $deviceA, config('session.cookie') => $sessionA];
+        $this->get('/profile')->assertRedirect('/login')->assertSessionHas('error', SingleSession::SIGNED_OUT_MESSAGE);
+        $this->assertGuest();
+        $this->postJson('/api/presence/heartbeat')->assertOk(); // now just a guest
+
+        // Device B carries on, and the password still works.
+        $this->app['auth']->forgetGuards();
+        session()->flush();
+        $this->defaultCookies = [Device::COOKIE => $deviceB, config('session.cookie') => $sessionB];
+        $this->get('/profile/edit')->assertOk();
+        $this->assertAuthenticatedAs($user);
+    }
+
     public function test_a_device_holds_one_signed_in_account_at_a_time(): void
     {
         [$a, $b] = User::factory()->count(2)->create();
@@ -76,7 +109,6 @@ class GuestAccessTest extends TestCase
         $this->freshSession();
         $this->post('/login', ['login' => $a->email, 'password' => 'password'])->assertRedirect('/');
         $this->freshSession(session()->getId());
-        $this->app['auth']->guard('web')->setUser($a);
         $this->post('/logout')->assertRedirect('/');
 
         $this->freshSession();

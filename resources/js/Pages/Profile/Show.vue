@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3';
 import { CalendarDays, Compass, Crosshair, Flame, Gamepad2, Layers, Lock, MapPin, Settings, Timer, Trophy } from 'lucide-vue-next';
 import Avatar from '@/Components/Avatar.vue';
 import { ICONS, colorVars } from '@/game/palette';
-import { END_REASONS, compact, fmt, relativeTime, seconds, shortDate } from '@/game/format';
+import { END_REASONS, fmt, points, relativeTime, seconds, shortDate } from '@/game/format';
 
 const props = defineProps({
     player: { type: Object, required: true },
@@ -20,7 +20,7 @@ const unlockedCount = computed(() => props.achievements.filter((a) => a.unlocked
 const gameBySlug = computed(() => Object.fromEntries(props.perGame.map((g) => [g.slug, g])));
 
 const tiles = computed(() => [
-    { label: 'Total points', value: compact(props.stats.total_points), icon: Trophy, tone: 'bg-amber-soft text-amber-deep' },
+    { label: 'Total points', value: points(props.stats.total_points), icon: Trophy, tone: 'bg-amber-soft text-amber-deep' },
     { label: 'Games played', value: fmt(props.stats.games_played), icon: Gamepad2, tone: 'bg-cream-highest text-navy-soft' },
     { label: 'Highest level', value: props.stats.best_level || '—', icon: Layers, tone: 'bg-sky-soft text-[#1d4ed8]' },
     { label: 'Accuracy', value: props.stats.games_played ? `${props.stats.accuracy}%` : '—', icon: Crosshair, tone: 'bg-emerald-soft text-emerald-deep' },
