@@ -24,6 +24,8 @@ const props = defineProps({
     meta: { type: Object, required: true },
     podium: { type: Array, required: true },
     me: { type: Object, default: null },
+    // Two places either side of the viewer, when they aren't on the page being shown.
+    around: { type: Array, default: () => [] },
     totalRanked: { type: Number, default: 0 },
     season: { type: Object, default: null },
     district: { type: String, default: null },
@@ -84,12 +86,13 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
         </div>
 
         <!-- Game selector -->
-        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Game">
-            <div class="mx-auto flex w-max gap-2">
+        <!-- Wraps onto more rows on phones rather than scrolling sideways. -->
+        <nav class="py-2" aria-label="Game">
+            <div class="flex flex-wrap justify-center gap-2">
                 <Link
                     :href="url({ game: 'all', board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
-                    class="flex items-center gap-2 rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
+                    class="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
                     :class="game === 'all' ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
                     :aria-current="game === 'all' ? 'page' : undefined"
                 >
@@ -100,7 +103,7 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
                     :key="g.slug"
                     :href="url({ game: g.slug, board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
-                    class="flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
+                    class="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
                     :class="game === g.slug ? 'bg-[var(--tile)] text-white shadow-[0_3px_0_var(--tile-deep)]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
                     :style="colorVars(g.color)"
                     :aria-current="game === g.slug ? 'page' : undefined"
@@ -111,14 +114,14 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
         </nav>
 
         <!-- Board tabs -->
-        <nav class="-mx-4 overflow-x-auto px-4 py-2 [scrollbar-width:none]" aria-label="Leaderboard">
-            <div class="mx-auto flex w-max gap-1 rounded-full bg-cream-high p-1">
+        <nav class="flex justify-center py-2" aria-label="Leaderboard">
+            <div class="flex flex-wrap justify-center gap-1 rounded-3xl bg-cream-high p-1">
                 <Link
                     v-for="c in categories"
                     :key="c.key"
                     :href="url({ board: c.key, duration: c.key === 'timed' ? duration ?? durations[0] : null, search: '', page: 1 })"
                     preserve-scroll
-                    class="whitespace-nowrap rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
+                    class="whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:px-4 sm:py-2 sm:text-[13px]"
                     :class="c.key === board ? 'bg-white text-navy-deep shadow-sm' : 'text-ink-soft hover:text-ink'"
                     :aria-current="c.key === board ? 'page' : undefined"
                 >
@@ -229,7 +232,34 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
                 <Pagination :current="meta.current_page" :last="meta.last_page" :href="(p) => url({ page: p })" />
             </div>
 
-            <div v-if="me" class="mt-4 flex items-center gap-3 rounded-[1.5rem] bg-amber-mist px-4 py-3 ring-2 ring-amber-soft">
+            <div v-if="me && around.length" class="mt-4 rounded-[1.5rem] bg-cream-low p-2 ring-1 ring-cream-high">
+                <p class="flex items-center justify-between px-2 pb-1 pt-1.5 font-display text-xs font-extrabold tracking-wider text-ink-soft">
+                    WHERE YOU STAND
+                    <span v-if="topPercent" class="text-navy-deep">Top {{ topPercent }}%</span>
+                </p>
+                <ol>
+                    <li v-for="row in around" :key="row.user_id">
+                        <Link
+                            :href="`/players/${row.username}`"
+                            class="flex items-center gap-3 rounded-2xl px-2 py-2.5 transition-colors"
+                            :class="row.user_id === me.user_id ? 'bg-amber-mist ring-2 ring-amber-soft' : 'hover:bg-white'"
+                            :aria-current="row.user_id === me.user_id ? 'true' : undefined"
+                        >
+                            <span class="w-11 shrink-0 font-display text-sm font-bold" :class="row.user_id === me.user_id ? 'text-amber-deep' : 'text-outline'">#{{ fmt(row.position) }}</span>
+                            <Avatar :avatar="row.avatar" size="sm" />
+                            <span class="min-w-0 flex-1">
+                                <span class="block truncate font-display font-bold text-navy-deep">{{ row.user_id === me.user_id ? 'You' : row.username }}</span>
+                                <span class="block truncate text-xs font-medium text-outline">{{ describe(row).secondary }}</span>
+                            </span>
+                            <span class="shrink-0 text-right">
+                                <span class="block font-display font-bold text-navy-deep">{{ describe(row).primary }}</span>
+                                <Movement :value="row.movement" />
+                            </span>
+                        </Link>
+                    </li>
+                </ol>
+            </div>
+            <div v-else-if="me" class="mt-4 flex items-center gap-3 rounded-[1.5rem] bg-amber-mist px-4 py-3 ring-2 ring-amber-soft">
                 <span class="font-display text-sm font-extrabold text-amber-deep">#{{ fmt(me.position) }}</span>
                 <Avatar :avatar="me.avatar" size="sm" />
                 <span class="min-w-0 flex-1">

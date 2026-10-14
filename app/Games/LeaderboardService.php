@@ -116,6 +116,23 @@ class LeaderboardService
         return $row ? $this->withMovement($board, collect([$row]))->first() : null;
     }
 
+    /** The players ranked within `radius` places of `position` (inclusive), in order. */
+    public function around(Board $board, int $position, int $radius = 2): array
+    {
+        $query = $this->rankedQuery($board);
+
+        if (! $query) {
+            return [];
+        }
+
+        $rows = DB::query()->fromSub($query, 'ranked')
+            ->whereBetween('position', [max(1, $position - $radius), $position + $radius])
+            ->orderBy('position')
+            ->get();
+
+        return $this->withMovement($board, $rows)->all();
+    }
+
     public function rankFor(Board $board, int $userId): ?int
     {
         $query = $this->rankedQuery($board);

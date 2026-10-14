@@ -101,6 +101,31 @@ class TimedRushTest extends TestCase
         $this->assertDatabaseHas('game_sessions', ['uuid' => $run->uuid, 'is_flagged' => true, 'flag_reason' => 'late_sync']);
     }
 
+    public function test_a_pause_pushes_the_deadline_back_by_the_time_paused(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $run = $this->begin('memory-master', 'timed', 30);
+        $run->clear(200);
+        $deadline = GameSession::where('uuid', $run->uuid)->value('deadline_at');
+
+        $this->postJson("/api/play/sessions/{$run->uuid}/pause")->assertOk();
+        $this->travel(5)->minutes();
+        // Paused: the clock has stopped, so the sweeper leaves it alone.
+        $this->artisan('games:expire-sessions')->assertSuccessful();
+        $this->assertDatabaseHas('game_sessions', ['uuid' => $run->uuid, 'status' => 'active']);
+
+        $this->postJson("/api/play/sessions/{$run->uuid}/resume")->assertOk();
+        $session = GameSession::where('uuid', $run->uuid)->sole();
+        $this->assertNull($session->paused_at);
+        $this->assertEqualsWithDelta($deadline->addMinutes(5)->getTimestamp(), $session->deadline_at->getTimestamp(), 2);
+
+        $run->clear(200);
+        $this->assertDatabaseHas('game_sessions', ['uuid' => $run->uuid, 'is_flagged' => false]);
+
+        // Another player cannot pause someone else's run.
+        $this->actingAs(User::factory()->create())->postJson("/api/play/sessions/{$run->uuid}/pause")->assertForbidden();
+    }
+
     public function test_abandoned_timed_runs_close_after_the_clock(): void
     {
         $this->actingAs(User::factory()->create());

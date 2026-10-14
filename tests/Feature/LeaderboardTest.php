@@ -168,6 +168,25 @@ class LeaderboardTest extends TestCase
         $this->assertNull($rows[0]['movement'], 'Last season’s ranks are not compared with');
     }
 
+    public function test_players_off_the_page_see_two_places_either_side_of_them(): void
+    {
+        config(['games.platform.leaderboard.per_page' => 2]);
+        $users = User::factory()->count(6)->create();
+        foreach ($users as $i => $user) {
+            $this->actingAs($user);
+            $this->playTo('pattern-peek', 6 - $i); // users[0] first … users[5] last
+        }
+        cache()->flush();
+
+        $this->actingAs($users[3])->get('/leaderboard?game=pattern-peek&board=level')->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('me.position', 4)
+                ->where('around', fn ($rows) => collect($rows)->pluck('position')->all() === [2, 3, 4, 5, 6]));
+
+        // On the page already: no extra list.
+        $this->actingAs($users[0])->get('/leaderboard?game=pattern-peek&board=level')->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->where('around', []));
+    }
+
     public function test_the_page_is_for_members_and_shows_the_viewers_position(): void
     {
         $user = User::factory()->create();

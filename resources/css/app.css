@@ -109,7 +109,7 @@
 @layer components {
     /* Tactile "plinth" buttons: a solid lip that collapses on press. */
     .btn {
-        @apply inline-flex select-none items-center justify-center gap-2 rounded-full px-5 py-3 font-display text-[15px] font-bold tracking-wide transition-[transform,box-shadow,background-color] duration-100 disabled:cursor-not-allowed disabled:opacity-60;
+        @apply inline-flex select-none items-center justify-center gap-2 rounded-full px-5 py-2.5 font-display text-[15px] font-bold tracking-wide transition-[transform,box-shadow,background-color] duration-100 disabled:cursor-not-allowed disabled:opacity-60;
         touch-action: manipulation;
     }
     .btn:not(:disabled):active {
@@ -146,11 +146,13 @@
         @apply bg-ruby text-white;
         box-shadow: 0 4px 0 var(--color-ruby-deep);
     }
+    /* Sizes stay proportional to the 15px body text: about 44px tall (the minimum
+       comfortable tap target), large 48px on phones and 56px from tablets up, small 34px. */
     .btn-lg {
-        @apply px-7 py-4 text-lg;
+        @apply px-6 py-3 text-base sm:px-7 sm:py-3.5 sm:text-lg;
     }
     .btn-sm {
-        @apply px-3.5 py-2 text-[13px];
+        @apply px-3.5 py-1.5 text-[13px];
     }
 
     .card {

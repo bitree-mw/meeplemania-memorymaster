@@ -66,6 +66,8 @@ Route::prefix('api/play')->group(function () {
         Route::get('/sessions/{session}', [PlayController::class, 'show']);
         Route::post('/sessions/{session}/sync', [PlayController::class, 'sync']);
         Route::post('/sessions/{session}/finish', [PlayController::class, 'finish']);
+        Route::post('/sessions/{session}/pause', [PlayController::class, 'pause']);
+        Route::post('/sessions/{session}/resume', [PlayController::class, 'resume']);
     });
 });
 

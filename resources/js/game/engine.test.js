@@ -182,6 +182,78 @@ describe('local-first engine', () => {
     });
 });
 
+describe('pausing', () => {
+    it('freezes the idle timeout and ignores taps, then carries on where it stopped', async () => {
+        const { engine, state } = setup({ specs: [memorySpec(1, 0, [2])] });
+        expect(engine.pause()).toBe(false); // nothing to pause before the run starts
+
+        await engine.start();
+        await toInput(engine);
+        await advance(4000); // 1s of the 5s turn left
+        expect(engine.pause()).toBe(true);
+        expect(state.paused).toBe(true);
+
+        await advance(60_000);
+        expect(state.phase).toBe(PHASE.INPUT);
+        expect(engine.input(2)).toBeUndefined();
+
+        engine.resume();
+        expect(state.paused).toBe(false);
+        await advance(300);
+        expect(engine.input(2)).toBe(true);
+        expect(state.phase).toBe(PHASE.CLEARED);
+        // Paused time is not counted in the tap timing.
+        expect(state.lastRound.timings).toEqual([4300]);
+    });
+
+    it('shifts the preview so the board resumes mid-sequence', async () => {
+        const { engine, state } = setup();
+        await engine.start();
+        const startsAt = state.previewStartsAt;
+        await advance(600);
+        engine.pause();
+        await advance(10_000);
+        engine.resume();
+
+        expect(state.previewStartsAt).toBe(startsAt + 10_000);
+        expect(state.phase).toBe(PHASE.PREVIEW);
+        await toInput(engine);
+        expect(state.phase).toBe(PHASE.INPUT);
+    });
+
+    it('stops the Timed Rush clock and the countdown', async () => {
+        const timedSpecs = Array.from({ length: 6 }, (_, i) => ({ ...memorySpec(1, 0, [1, 2, 3]), key: `N${i + 1}`, preview_ms: 500, input_timeout_ms: 0 }));
+        const { engine, state } = setup({ mode: 'timed', duration: 30, specs: timedSpecs, sess: session({ lives: null, lives_total: null }) });
+        const started = engine.start();
+        await advance(1500);
+        engine.pause();
+        await advance(20_000);
+        expect(state.phase).toBe(PHASE.COUNTDOWN);
+        engine.resume();
+        await advance(1500);
+        await started;
+
+        await advance(10_000);
+        const left = state.remainingMs;
+        engine.pause();
+        await advance(120_000);
+        expect(state.remainingMs).toBe(left);
+        engine.resume();
+        await advance(1000);
+        expect(state.remainingMs).toBeGreaterThan(left - 1200);
+        expect(state.phase).not.toBe(PHASE.FINISHED);
+    });
+
+    it('cannot pause once the run has ended', async () => {
+        const { engine } = setup({ specs: [memorySpec(1, 0, [2])] });
+        await engine.start();
+        await toInput(engine);
+        await tap(engine, [0]);
+        expect(engine.inProgress).toBe(false);
+        expect(engine.pause()).toBe(false);
+    });
+});
+
 describe('Timed Rush', () => {
     const timedSpecs = Array.from({ length: 6 }, (_, i) => ({ ...memorySpec(1, 0, [1, 2, 3]), key: `N${i + 1}`, preview_ms: 500, input_timeout_ms: 0 }));
 

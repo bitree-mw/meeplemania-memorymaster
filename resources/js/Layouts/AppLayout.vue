@@ -36,7 +36,7 @@ const nav = computed(() => [
         <DistrictNotice />
 
         <header class="sticky top-0 z-30 px-3 pt-3 sm:px-4">
-            <div class="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full bg-white/95 py-2 pl-2.5 pr-2.5 shadow-card ring-1 ring-cream-high backdrop-blur-md sm:pl-3 sm:pr-3">
+            <div class="mx-auto flex max-w-5xl items-center justify-between gap-2 rounded-full bg-white/95 py-2 pl-2 pr-2 sm:gap-3 shadow-card ring-1 ring-cream-high backdrop-blur-md sm:pl-3 sm:pr-3">
                 <BrandMark />
 
                 <nav class="hidden items-center gap-1 rounded-full bg-cream-high p-1 lg:flex" aria-label="Sections">
@@ -63,7 +63,7 @@ const nav = computed(() => [
                     </span>
 
                     <template v-if="user && player">
-                        <span class="chip bg-amber-mist text-amber-ink ring-1 ring-amber-soft" :title="`${player.daily_streak}-day play streak`">
+                        <span class="chip px-2.5 bg-amber-mist text-amber-ink ring-1 ring-amber-soft sm:px-3" :title="`${player.daily_streak}-day play streak`">
                             <Flame :size="16" class="text-orange" aria-hidden="true" />
                             {{ player.daily_streak }}<span class="hidden sm:inline">&nbsp;Day Streak</span>
                             <span class="sr-only"> day streak</span>
@@ -76,12 +76,12 @@ const nav = computed(() => [
 
                     <button
                         type="button"
-                        class="grid size-10 place-items-center rounded-full bg-cream-low text-ink-soft transition-colors hover:bg-cream-high hover:text-ink"
+                        class="grid size-9 place-items-center rounded-full bg-cream-low text-ink-soft transition-colors hover:bg-cream-high hover:text-ink sm:size-10"
                         :aria-pressed="soundOn"
                         :aria-label="soundOn ? 'Mute sound effects' : 'Turn sound effects on'"
                         @click="toggleSound"
                     >
-                        <component :is="soundOn ? Volume2 : VolumeX" :size="19" />
+                        <component :is="soundOn ? Volume2 : VolumeX" :size="18" />
                     </button>
 
                     <UserMenu v-if="user" :user="user" />

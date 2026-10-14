@@ -65,6 +65,22 @@ class PlayController extends Controller
         return response()->json($this->play->finish($session, $this->results($request), $request->input('reason')));
     }
 
+    public function pause(GameSession $session): JsonResponse
+    {
+        Gate::authorize('play', $session);
+        $this->play->pause($session);
+
+        return response()->json(['paused' => true]);
+    }
+
+    public function resume(GameSession $session): JsonResponse
+    {
+        Gate::authorize('play', $session);
+        $this->play->resume($session);
+
+        return response()->json(['paused' => false]);
+    }
+
     private function results(Request $request): array
     {
         return $request->validate([

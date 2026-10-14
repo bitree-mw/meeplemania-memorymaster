@@ -11,6 +11,10 @@
  * (performance.now() by default) so previews, tap timings and the Timed Rush
  * clock stay accurate even when rendering lags.
  *
+ * pause() freezes a run in progress (every round timer and the Timed Rush clock)
+ * and resume() shifts all of its timestamps by the time spent paused, so the
+ * round carries on exactly where it stopped. Taps are ignored while paused.
+ *
  *   idle ─start─▶ [countdown] ─▶ preview ─▶ input ─▶ feedback ─▶ next round    Timed Rush
  *                                                  ├─▶ cleared ──next──▶ preview  Level modes
  *                                                  ├─▶ life_lost ─next─▶ preview
@@ -64,6 +68,7 @@ export function initialState() {
         sync: 'synced',
         error: null,
         timedOut: false,
+        paused: false,
     };
 }
 
@@ -88,6 +93,7 @@ export function createGameEngine({
     let pointer = { level: 1, attempt: 0, lives: null, n: 1 };
     let timers = new Set();
     let idleTimer = null;
+    let idleDue = null;
     let tickTimer = null;
     let inputStartedAt = 0;
     let lastTapAt = null;
@@ -98,6 +104,8 @@ export function createGameEngine({
     let retryAction = null;
     let feedbackSeq = 0;
     let destroyed = false;
+    let pausedAt = null;
+    let countdownBegin = 0;
 
     const emit = (name, ...args) => hooks[name]?.(...args);
 
@@ -106,20 +114,28 @@ export function createGameEngine({
         emit('phase', phase);
     }
 
+    /** Run fn at clock time `time`. Entries keep their due time so a pause can reschedule them. */
     function at(time, fn) {
-        const id = setTimer(() => {
-            timers.delete(id);
+        const entry = { due: time, id: null };
+        entry.run = () => {
+            timers.delete(entry);
             if (!destroyed) fn();
-        }, Math.max(0, time - clock()));
-        timers.add(id);
-        return id;
+        };
+        schedule(entry);
+        timers.add(entry);
+        return entry;
+    }
+
+    function schedule(entry) {
+        entry.id = setTimer(entry.run, Math.max(0, entry.due - clock()));
     }
 
     function clearRoundTimers() {
-        timers.forEach((id) => clearTimer(id));
+        timers.forEach((entry) => clearTimer(entry.id));
         timers = new Set();
         if (idleTimer !== null) clearTimer(idleTimer);
         idleTimer = null;
+        idleDue = null;
     }
 
     function fail(error, retry) {
@@ -138,7 +154,7 @@ export function createGameEngine({
         if (type !== 'response') return;
 
         absorb(payload);
-        if (state.phase === PHASE.WAITING) beginRound();
+        if (state.phase === PHASE.WAITING && pausedAt === null) beginRound();
 
         // The server ended the run on its own (e.g. a result failed verification).
         if (payload.summary && !ended && started) {
@@ -202,7 +218,7 @@ export function createGameEngine({
         setPhase(PHASE.COUNTDOWN);
 
         return new Promise((resolve) => {
-            const begin = clock();
+            countdownBegin = clock(); // shifted by resume()
             const step = (n) => {
                 if (n === 0) {
                     state.countdown = null;
@@ -211,7 +227,7 @@ export function createGameEngine({
                 }
                 state.countdown = n;
                 emit('countdown', n);
-                at(begin + (seconds - n + 1) * 1000, () => step(n - 1));
+                at(countdownBegin + (seconds - n + 1) * 1000, () => step(n - 1));
             };
             step(seconds);
         });
@@ -263,20 +279,26 @@ export function createGameEngine({
 
     function armIdle() {
         if (timed || !state.spec?.input_timeout_ms) return;
+        armIdleAt(clock() + state.spec.input_timeout_ms);
+    }
+
+    function armIdleAt(due) {
         if (idleTimer !== null) clearTimer(idleTimer);
+        idleDue = due;
         idleTimer = setTimer(() => {
             idleTimer = null;
+            idleDue = null;
             if (state.phase === PHASE.INPUT) {
                 state.timedOut = true;
                 emit('timeout');
                 completeRound('timeout');
             }
-        }, state.spec.input_timeout_ms);
+        }, Math.max(0, due - clock()));
     }
 
     /** Returns true / false for a judged tap, null for a neutral one, undefined when ignored. */
     function input(value) {
-        if (state.phase !== PHASE.INPUT) return undefined;
+        if (state.phase !== PHASE.INPUT || pausedAt !== null) return undefined;
 
         const now = clock();
         if (now - inputStartedAt < UNLOCK_GUARD_MS) return undefined;
@@ -303,6 +325,7 @@ export function createGameEngine({
     function completeRound(outcome) {
         if (idleTimer !== null) clearTimer(idleTimer);
         idleTimer = null;
+        idleDue = null;
 
         const spec = state.spec;
         const status = outcome === 'cleared' ? 'cleared' : 'failed';
@@ -346,7 +369,53 @@ export function createGameEngine({
 
     /** Continue after a level-complete or life-lost screen. */
     function next() {
-        if ([PHASE.CLEARED, PHASE.LIFE_LOST].includes(state.phase)) beginRound();
+        if (pausedAt === null && [PHASE.CLEARED, PHASE.LIFE_LOST].includes(state.phase)) beginRound();
+    }
+
+    /** Freeze a run in progress. Returns false when there is nothing to pause. */
+    function pause() {
+        if (!started || ended || pausedAt !== null) return false;
+
+        pausedAt = clock();
+        timers.forEach((entry) => clearTimer(entry.id));
+        if (idleTimer !== null) clearTimer(idleTimer);
+        idleTimer = null;
+        stopClock();
+        state.paused = true;
+        // Only Timed Rush has a server deadline, which resume pushes back. Best effort:
+        // if it fails, results synced past the deadline are flagged for review, not lost.
+        if (timed) api.pause?.(uuid).catch(() => {});
+        emit('pause');
+        return true;
+    }
+
+    /** Carry on from where pause() stopped, as if no time had passed. */
+    function resume() {
+        if (pausedAt === null) return;
+
+        const delta = clock() - pausedAt;
+        pausedAt = null;
+        state.paused = false;
+        if (ended) return;
+        if (timed) api.resume?.(uuid).catch(() => {});
+
+        countdownBegin += delta;
+        inputStartedAt += delta;
+        if (lastTapAt !== null) lastTapAt += delta;
+        state.previewStartsAt += delta;
+        timers.forEach((entry) => {
+            entry.due += delta;
+            schedule(entry);
+        });
+        if (idleDue !== null) armIdleAt(idleDue + delta);
+        if (deadline !== null) {
+            deadline += delta;
+            tick();
+        }
+        emit('resume', delta);
+
+        // Rounds that arrived while paused.
+        if (state.phase === PHASE.WAITING && specs.has(nextKey())) beginRound();
     }
 
     function tick() {
@@ -404,6 +473,8 @@ export function createGameEngine({
 
     /** Leave the arena. Verified points are kept; pending results still sync. */
     function exit() {
+        pausedAt = null;
+        state.paused = false;
         clearRoundTimers();
         stopClock();
         if (uuid && !ended) {
@@ -439,6 +510,8 @@ export function createGameEngine({
         start,
         input,
         next,
+        pause,
+        resume,
         retry,
         exit,
         reset,
@@ -448,6 +521,10 @@ export function createGameEngine({
         },
         get hasTimeUp() {
             return timeUp;
+        },
+        /** True while a run is under way: started and not yet ended. */
+        get inProgress() {
+            return started && !ended;
         },
     };
 }

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, reactive, ref, shallowRef, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { CalendarCheck, Eye, Heart, Hourglass, LoaderCircle, Play, RotateCcw, Timer, WifiOff, X } from 'lucide-vue-next';
+import { CalendarCheck, Eye, Heart, Hourglass, LoaderCircle, Pause, Play, RotateCcw, Timer, WifiOff, X } from 'lucide-vue-next';
 import AnimatedNumber from '@/Components/AnimatedNumber.vue';
 import CoachMeeple from '@/Components/Game/CoachMeeple.vue';
 import Confetti from '@/Components/Game/Confetti.vue';
@@ -140,6 +140,14 @@ function onCue(cue) {
 const phase = computed(() => state.phase);
 const playing = computed(() => [PHASE.STARTING, PHASE.COUNTDOWN, PHASE.PREVIEW, PHASE.INPUT, PHASE.FEEDBACK, PHASE.WAITING].includes(phase.value));
 const showBoard = computed(() => playing.value || phase.value === PHASE.IDLE || phase.value === PHASE.ERROR);
+// While a puzzle is on the board the arena is locked to one screen so nothing scrolls mid-round.
+// The how-to card before that is ordinary page content and may scroll on short phones.
+const fitScreen = computed(() => showBoard.value && Boolean(state.spec));
+
+// The how-to card may have been scrolled; show the whole locked board once play begins.
+watch(fitScreen, (fit) => {
+    if (fit) window.scrollTo({ top: 0 });
+});
 const remainingSeconds = computed(() => (state.remainingMs === null ? duration.value : Math.ceil(state.remainingMs / 1000)));
 const timerFraction = computed(() => (state.remainingMs === null ? 1 : state.remainingMs / (duration.value * 1000)));
 
@@ -205,13 +213,34 @@ function restart() {
     primaryAction();
 }
 
+const confirmingExit = ref(false);
+
+/** Leaving mid-run pauses the clock and asks first; otherwise leave straight away. */
 function exitArena() {
+    if (engine.value.inProgress && engine.value.pause()) {
+        confirmingExit.value = true;
+        return;
+    }
+    leave();
+}
+
+function keepPlaying() {
+    confirmingExit.value = false;
+    engine.value.resume();
+}
+
+function leave() {
+    confirmingExit.value = false;
     engine.value.exit();
     router.visit(`/?game=${slug}`);
 }
 
 function onKey(e) {
     if (e.target.closest?.('input, textarea, select')) return;
+    if (confirmingExit.value) {
+        if (e.key === 'Escape') keepPlaying();
+        return;
+    }
     const n = Number(e.key);
 
     if (phase.value === PHASE.INPUT && n >= 1 && n <= 9) {
@@ -269,7 +298,12 @@ onBeforeUnmount(() => {
     <Confetti v-if="celebrate" />
     <p class="sr-only" aria-live="assertive">{{ announcement }}</p>
 
-    <div class="flex flex-col pt-3" :class="showBoard ? 'h-[calc(100dvh-4.75rem)] overscroll-none pb-3' : 'min-h-[calc(100dvh-5.25rem)]'" :style="accent">
+    <!-- svh, not dvh: the smallest viewport, so Safari's floating toolbar never covers the controls. -->
+    <div
+        class="flex flex-col pt-3"
+        :class="fitScreen ? 'h-[calc(100svh-4.75rem)] overscroll-none pb-3' : showBoard ? 'min-h-[calc(100svh-4.75rem)] pb-[max(1.5rem,env(safe-area-inset-bottom))]' : 'min-h-[calc(100svh-5.25rem)]'"
+        :style="accent"
+    >
         <!-- HUD -->
         <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex min-w-0 items-center gap-2">
@@ -322,7 +356,7 @@ onBeforeUnmount(() => {
         <!-- Board -->
         <template v-if="showBoard">
             <div class="mt-3">
-                <CoachMeeple :message="coach.message" :tone="coach.tone" :status="coach.status" :mood="coach.mood">
+                <CoachMeeple :message="coach.message" :tone="coach.tone" :status="coach.status" :mood="coach.mood" :compact="fitScreen">
                     <template #aside>
                         <span v-if="once" class="hidden shrink-0 items-center gap-1.5 rounded-full bg-sky-soft px-3 py-1.5 font-display text-xs font-bold text-[#1d4ed8] sm:inline-flex">
                             <CalendarCheck :size="15" /> Try Once
@@ -333,7 +367,7 @@ onBeforeUnmount(() => {
 
             <div ref="boardWrap" class="relative my-3 flex min-h-0 flex-1 items-center justify-center" :data-round="state.spec?.key">
                 <!-- Before starting: how to play this game -->
-                <div v-if="!state.spec" class="w-full max-w-md rounded-[2rem] bg-white p-6 text-left shadow-card ring-1 ring-cream-high">
+                <div v-if="!state.spec" class="w-full max-w-md rounded-[2rem] bg-white p-5 text-left shadow-card ring-1 ring-cream-high sm:p-6">
                     <div class="flex items-center gap-3">
                         <span class="grid size-12 place-items-center rounded-2xl bg-[var(--tile-soft)] text-[var(--tile)]"><component :is="ICONS[game.icon]" :size="24" :stroke-width="2.4" /></span>
                         <div>
@@ -357,7 +391,7 @@ onBeforeUnmount(() => {
                                 role="radio"
                                 :aria-checked="d === duration"
                                 :disabled="phase !== 'idle'"
-                                class="flex-1 rounded-2xl py-2.5 font-display text-lg font-extrabold transition-colors"
+                                class="flex-1 rounded-2xl py-2 font-display text-base font-extrabold transition-colors sm:py-2.5 sm:text-lg"
                                 :class="d === duration ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-cream-mid text-ink-soft hover:bg-cream-high'"
                                 @click="chooseDuration(d)"
                             >
@@ -368,6 +402,10 @@ onBeforeUnmount(() => {
                     </div>
                 </div>
 
+                <!-- Hidden while paused, so a pause can't be used to study the puzzle. -->
+                <div v-else-if="state.paused" class="grid w-full max-w-md place-items-center rounded-[2rem] bg-cream-low py-16 font-display text-lg font-bold text-ink-soft ring-1 ring-cream-high">
+                    Paused
+                </div>
                 <component
                     :is="board"
                     v-else
@@ -383,7 +421,7 @@ onBeforeUnmount(() => {
                     @cue="onCue"
                 />
 
-                <div v-if="phase === 'countdown'" class="absolute inset-0 grid place-items-center" aria-live="assertive">
+                <div v-if="phase === 'countdown' && !state.paused" class="absolute inset-0 grid place-items-center" aria-live="assertive">
                     <span :key="state.countdown" class="grid size-32 place-items-center rounded-full bg-navy font-display text-7xl font-extrabold text-amber shadow-lift motion-safe:animate-count">
                         {{ state.countdown }}
                     </span>
@@ -473,5 +511,20 @@ onBeforeUnmount(() => {
                 @retry="restart"
             />
         </div>
+
+        <!-- Exit mid-run: the clock is paused until they choose. -->
+        <Transition enter-from-class="opacity-0" leave-to-class="opacity-0" enter-active-class="transition duration-150" leave-active-class="transition duration-100">
+            <div v-if="confirmingExit" class="fixed inset-0 z-50 grid place-items-center bg-navy-deep/50 px-4 backdrop-blur-sm" @click.self="keepPlaying">
+                <div class="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-lift" role="alertdialog" aria-modal="true" aria-labelledby="exit-title" aria-describedby="exit-body">
+                    <span class="mx-auto grid size-12 place-items-center rounded-full bg-amber-soft text-amber-ink"><Pause :size="22" fill="currentColor" aria-hidden="true" /></span>
+                    <h2 id="exit-title" class="mt-3 text-xl font-extrabold text-navy-deep">Leave this game?</h2>
+                    <p id="exit-body" class="mt-1.5 text-[15px] font-medium text-ink-soft">The game is paused. If you leave now, this run ends and you’ll lose your progress in it.</p>
+                    <div class="mt-5 flex flex-col gap-2.5">
+                        <button type="button" class="btn btn-primary w-full" autofocus @click="keepPlaying"><Play :size="18" fill="currentColor" aria-hidden="true" /> Keep playing</button>
+                        <button type="button" class="btn btn-ghost w-full" @click="leave">Leave game</button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </div>
 </template>

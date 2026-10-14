@@ -68,4 +68,6 @@ export const playApi = {
     show: (uuid) => request('GET', `${base}/sessions/${uuid}`),
     sync: (uuid, results) => request('POST', `${base}/sessions/${uuid}/sync`, { results }),
     finish: (uuid, results, reason) => request('POST', `${base}/sessions/${uuid}/finish`, { results, reason }),
+    pause: (uuid) => request('POST', `${base}/sessions/${uuid}/pause`),
+    resume: (uuid) => request('POST', `${base}/sessions/${uuid}/resume`),
 };

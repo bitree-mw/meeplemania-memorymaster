@@ -69,15 +69,15 @@ const example = computed(() => {
         <!-- Per game -->
         <section class="card p-6 sm:p-8" aria-labelledby="games-title">
             <h2 id="games-title" class="text-2xl font-bold text-navy-deep">The games</h2>
-            <div class="-mx-2 mt-3 overflow-x-auto px-2 py-2 [scrollbar-width:none]">
-                <div class="flex w-max gap-2" role="tablist">
+            <div class="mt-3 py-2">
+                <div class="flex flex-wrap gap-2" role="tablist">
                     <button
                         v-for="g in games"
                         :key="g.slug"
                         type="button"
                         role="tab"
                         :aria-selected="g.slug === selected"
-                        class="flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all"
+                        class="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
                         :class="g.slug === selected ? 'bg-[var(--tile)] text-white' : 'bg-cream-mid text-ink-soft hover:text-ink'"
                         :style="colorVars(g.color)"
                         @click="selected = g.slug"

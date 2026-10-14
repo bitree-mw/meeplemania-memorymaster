@@ -27,6 +27,11 @@ class LeaderboardController extends Controller
         $result = $leaderboards->page($board, $page, $search);
         $season = $leaderboards->currentSeason();
         $user = $request->user();
+        $me = $user ? $leaderboards->entryFor($board, $user->id) : null;
+
+        // Not on the page being viewed: show where they stand, two places either side.
+        $onPage = $me && collect($result['rows'])->contains(fn ($row) => (int) $row['user_id'] === $user->id);
+        $around = $me && ! $onPage && ! $search ? $leaderboards->around($board, (int) $me['position']) : [];
 
         return Inertia::render('Leaderboard', [
             ...self::boardProps($board, $registry),
@@ -34,7 +39,8 @@ class LeaderboardController extends Controller
             'rows' => $result['rows'],
             'meta' => $result['meta'],
             'podium' => $search ? [] : $leaderboards->podium($board),
-            'me' => $user ? $leaderboards->entryFor($board, $user->id) : null,
+            'me' => $me,
+            'around' => $around,
             'totalRanked' => $search ? $leaderboards->totalRanked($board) : $result['meta']['total'],
             'season' => $season ? ['name' => $season->name, 'ends_on' => $season->ends_on->toDateString()] : null,
         ]);

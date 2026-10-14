@@ -168,6 +168,39 @@ class PlayService
         });
     }
 
+    /**
+     * The player paused (the exit prompt). Only a Timed Rush run has a server
+     * deadline to protect; level modes are checked against elapsed time, which
+     * a pause only adds to.
+     */
+    public function pause(GameSession $session): void
+    {
+        DB::transaction(function () use ($session) {
+            $session = $this->lock($session);
+
+            if ($session->isActive() && $session->isTimed() && $session->paused_at === null) {
+                $session->forceFill(['paused_at' => now(), 'last_activity_at' => now()])->save();
+            }
+        });
+    }
+
+    /** Push the Timed Rush deadline back by the time spent paused. The client's clock was frozen too. */
+    public function resume(GameSession $session): void
+    {
+        DB::transaction(function () use ($session) {
+            $session = $this->lock($session);
+
+            if ($session->isActive() && $session->paused_at !== null) {
+                $pausedMs = (int) $session->paused_at->diffInMilliseconds(now(), true);
+                $session->forceFill([
+                    'deadline_at' => $session->deadline_at?->addMilliseconds($pausedMs),
+                    'paused_at' => null,
+                    'last_activity_at' => now(),
+                ])->save();
+            }
+        });
+    }
+
     /** Close runs left idle, and Timed Rush runs whose clock (plus grace) has run out. Points are kept. */
     public function expireIdleSessions(): int
     {
@@ -176,7 +209,8 @@ class PlayService
 
         GameSession::query()
             ->where('status', GameSession::STATUS_ACTIVE)
-            ->where(fn ($q) => $q->where('last_activity_at', '<', $cutoff)->orWhere('deadline_at', '<', now()))
+            // A paused run's clock is stopped; it only expires once idle for too long.
+            ->where(fn ($q) => $q->where('last_activity_at', '<', $cutoff)->orWhere(fn ($q) => $q->where('deadline_at', '<', now())->whereNull('paused_at')))
             ->orderBy('id')
             ->each(function (GameSession $session) use (&$count) {
                 DB::transaction(function () use ($session, &$count) {

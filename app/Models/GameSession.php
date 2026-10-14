@@ -44,6 +44,7 @@ class GameSession extends Model
             'accuracy' => 'float',
             'started_at' => 'datetime',
             'deadline_at' => 'datetime',
+            'paused_at' => 'datetime',
             'last_activity_at' => 'datetime',
             'ended_at' => 'datetime',
             'reviewed_at' => 'datetime',
