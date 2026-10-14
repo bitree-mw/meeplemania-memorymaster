@@ -69,6 +69,9 @@ const lit = [0, 4, 5, 7];
     container-type: inline-size;
     position: relative;
     width: 100%;
+    /* Never set the width of the grid column it sits in (Safari sizes it from content). */
+    min-width: 0;
+    max-width: 100%;
     aspect-ratio: 16 / 10.5;
     overflow: hidden;
     border-radius: 1.75rem;

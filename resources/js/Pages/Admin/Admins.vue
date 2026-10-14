@@ -46,7 +46,7 @@ const when = (iso) => new Date(iso).toLocaleString([], { dateStyle: 'medium', ti
             </p>
         </div>
 
-        <div class="grid gap-5 lg:grid-cols-[3fr_2fr]">
+        <div class="grid grid-cols-1 gap-5 lg:grid-cols-[3fr_2fr]">
             <section class="card p-2 sm:p-4" aria-label="Admin accounts">
                 <ul class="divide-y divide-cream-high">
                     <li v-for="a in admins" :key="a.id" class="flex flex-wrap items-center gap-3 px-2 py-3">

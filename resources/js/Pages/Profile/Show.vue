@@ -84,7 +84,7 @@ function statusLabel(g) {
         <!-- Per game -->
         <section aria-labelledby="games-title">
             <h2 id="games-title" class="eyebrow mb-3 px-1 !text-[13px]">By game</h2>
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <div v-for="g in perGame" :key="g.slug" class="rounded-3xl bg-white p-4 ring-1 ring-cream-high" :style="colorVars(g.color)">
                     <div class="flex items-center gap-2">
                         <span class="grid size-9 place-items-center rounded-xl bg-[var(--tile-soft)] text-[var(--tile)]"><component :is="ICONS[g.icon]" :size="18" :stroke-width="2.4" /></span>

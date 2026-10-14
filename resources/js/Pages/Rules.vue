@@ -102,7 +102,7 @@ const example = computed(() => {
                     </li>
                 </ol>
 
-                <ul class="mt-4 grid gap-2 text-sm font-medium text-ink-soft sm:grid-cols-2">
+                <ul class="mt-4 grid grid-cols-1 gap-2 text-sm font-medium text-ink-soft sm:grid-cols-2">
                     <li class="rounded-2xl bg-cream-low p-3"><strong class="text-navy-deep">Level Builder:</strong> {{ game.rules.lives }} {{ game.rules.lives === 1 ? 'life' : 'lives' }}, starting at level {{ game.rules.starting_level }}<template v-if="game.rules.input_timeout_ms">; pausing over {{ game.rules.input_timeout_ms / 1000 }}s loses the round</template>.</li>
                     <li class="rounded-2xl bg-cream-low p-3"><strong class="text-navy-deep">Try Once:</strong> starts at level {{ game.rules.once_starting_level }}, up to {{ game.rules.once_max_levels }} levels, {{ game.rules.once_lives }} {{ game.rules.once_lives === 1 ? 'life' : 'lives' }}.</li>
                 </ul>
@@ -121,7 +121,7 @@ const example = computed(() => {
 
         <section class="card p-6 sm:p-8" aria-labelledby="streak-title">
             <h2 id="streak-title" class="text-2xl font-bold text-navy-deep">Streaks</h2>
-            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div class="rounded-3xl bg-amber-mist p-5 ring-1 ring-amber-soft">
                     <Flame :size="24" class="text-orange" aria-hidden="true" />
                     <h3 class="mt-2 font-bold text-navy-deep">Daily activity streak</h3>
@@ -138,7 +138,7 @@ const example = computed(() => {
         <section class="card p-6 sm:p-8" aria-labelledby="ach-title">
             <h2 id="ach-title" class="text-2xl font-bold text-navy-deep">Achievements</h2>
             <p class="mt-1 text-sm font-medium text-ink-soft">Each badge unlocks once, from ranked play in any game.</p>
-            <ul class="mt-4 grid gap-3 sm:grid-cols-2">
+            <ul class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <li v-for="a in achievements" :key="a.key" class="flex items-center gap-3 rounded-2xl bg-cream-low p-3">
                     <span class="grid size-11 shrink-0 place-items-center rounded-xl bg-amber text-navy-deep"><component :is="ICONS[a.icon] ?? ICONS.Trophy" :size="20" /></span>
                     <span>
@@ -153,7 +153,7 @@ const example = computed(() => {
             <h2 id="lb-title" class="flex items-center gap-2 text-2xl font-bold text-navy-deep"><Medal :size="24" class="text-amber" /> Rankings &amp; tie-breaks</h2>
             <p class="mt-1 text-sm font-medium text-ink-soft">Each game has its own boards, plus all-games boards. Only ranked games from signed-in players count; Fastest requires level {{ fastestMinLevel }}+.</p>
             <dl class="mt-4 divide-y divide-cream-high">
-                <div v-for="b in boards" :key="b.label" class="grid gap-1 py-3 sm:grid-cols-[10rem_1fr]">
+                <div v-for="b in boards" :key="b.label" class="grid grid-cols-1 gap-1 py-3 sm:grid-cols-[10rem_minmax(0,1fr)]">
                     <dt class="font-display font-bold text-navy-deep">{{ b.label }}</dt>
                     <dd class="text-sm font-medium text-ink-soft">{{ b.rule }}</dd>
                 </div>

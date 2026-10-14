@@ -45,7 +45,7 @@ const destroy = (season) => confirm(`Delete ${season.name}?`) && router.delete(`
             <button type="button" class="btn btn-primary btn-sm" @click="startCreate"><Plus :size="16" /> New season</button>
         </div>
 
-        <form v-if="editingId" class="card grid gap-3 p-5 sm:grid-cols-4" @submit.prevent="save">
+        <form v-if="editingId" class="card grid grid-cols-1 gap-3 p-5 sm:grid-cols-4" @submit.prevent="save">
             <label class="sm:col-span-2"><span class="label">Name</span><input v-model="form.name" class="field" required maxlength="60" /></label>
             <label><span class="label">Starts</span><input v-model="form.starts_on" type="date" class="field" required /></label>
             <label><span class="label">Ends</span><input v-model="form.ends_on" type="date" class="field" required /></label>

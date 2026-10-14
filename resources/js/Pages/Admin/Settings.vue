@@ -84,7 +84,7 @@ const isChanged = (section, field) => JSON.stringify(forms[section]?.data[field]
                 </div>
             </div>
 
-            <div v-if="forms[section.key]" class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div v-if="forms[section.key]" class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <div v-for="field in section.fields" :key="field.key">
                     <label class="label flex items-center gap-1.5" :for="`${section.key}-${field.key}`">
                         {{ field.label }}

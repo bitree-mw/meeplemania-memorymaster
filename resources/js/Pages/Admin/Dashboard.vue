@@ -49,7 +49,7 @@ const usageMax = Math.max(1, ...props.gameUsage.map((u) => u.games));
             </div>
         </dl>
 
-        <div class="grid gap-4 lg:grid-cols-3">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <section class="card p-5 sm:p-6 lg:col-span-2">
                 <GamesChart :series="series" />
             </section>

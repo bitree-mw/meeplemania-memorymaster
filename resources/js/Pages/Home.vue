@@ -62,7 +62,7 @@ const dailyLabel = computed(() => {
     <div class="mx-auto max-w-5xl space-y-7 pt-6">
         <!-- Hero -->
         <section class="card relative overflow-hidden">
-            <div class="grid items-center gap-6 p-5 sm:p-8 md:grid-cols-[1.15fr_1fr] md:gap-8">
+            <div class="grid grid-cols-1 items-center gap-6 p-5 sm:p-8 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] md:gap-8">
                 <div class="order-2 md:order-1">
                     <span class="eyebrow !text-[12px] !text-amber-deep">Meeple Mania Games</span>
                     <h1 class="mt-1 text-[32px] font-extrabold leading-[1.08] tracking-tight text-navy-deep sm:text-[44px]">
@@ -149,7 +149,7 @@ const dailyLabel = computed(() => {
                 <Link :href="`/leaderboard?game=${game.slug}`" class="hidden items-center gap-1 font-display text-sm font-bold text-[var(--tile-deep)] sm:flex" :prefetch="Boolean(me)">Rankings <ArrowRight :size="16" /></Link>
             </div>
 
-            <div class="mt-5 grid gap-3 md:grid-cols-3">
+            <div class="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
                 <!-- Level Builder -->
                 <div class="flex flex-col rounded-3xl bg-cream-low p-4 ring-1 ring-cream-high">
                     <div class="flex items-center gap-2">

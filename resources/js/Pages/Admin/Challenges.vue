@@ -75,7 +75,7 @@ const label = (d) => new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { w
                     <span v-else-if="!day.is_past" class="inline-flex items-center gap-1 text-xs font-bold text-outline"><Lock :size="13" /> Locked</span>
                 </div>
 
-                <form v-if="editing === day.date" class="mt-3 grid gap-3 rounded-2xl bg-cream-low p-4 sm:grid-cols-4" @submit.prevent="save">
+                <form v-if="editing === day.date" class="mt-3 grid grid-cols-1 gap-3 rounded-2xl bg-cream-low p-4 sm:grid-cols-4" @submit.prevent="save">
                     <label class="sm:col-span-2"><span class="label">Title (optional)</span><input v-model="form.title" class="field" maxlength="80" placeholder="e.g. Marathon Monday" /></label>
                     <label><span class="label">Starting level</span><input v-model.number="form.starting_level" type="number" min="1" max="50" class="field" /></label>
                     <label><span class="label">Levels</span><input v-model.number="form.max_levels" type="number" min="1" max="200" class="field" /></label>

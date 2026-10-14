@@ -46,7 +46,7 @@ const save = (a) =>
 
         <form class="card space-y-4 p-5 ring-2 ring-amber-soft" @submit.prevent="create">
             <h2 class="flex items-center gap-2 font-display text-lg font-bold text-navy-deep"><Plus :size="18" /> New achievement</h2>
-            <div class="grid gap-3 sm:grid-cols-[1fr_2fr]">
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_2fr]">
                 <label><span class="label">Name</span><input v-model="creating.name" class="field !py-2" maxlength="60" required /></label>
                 <label><span class="label">Description</span><input v-model="creating.description" class="field !py-2" maxlength="160" required placeholder="What the player has to do" /></label>
                 <label>
@@ -80,7 +80,7 @@ const save = (a) =>
             <span class="grid size-12 shrink-0 place-items-center rounded-2xl" :class="drafts[a.id].is_active ? 'bg-amber text-navy-deep' : 'bg-cream-highest text-outline'">
                 <component :is="ICONS[a.icon] ?? ICONS.Trophy" :size="22" />
             </span>
-            <div class="grid min-w-0 flex-1 gap-3 sm:grid-cols-[1fr_2fr]">
+            <div class="grid grid-cols-1 min-w-0 flex-1 gap-3 sm:grid-cols-[1fr_2fr]">
                 <label><span class="label">Name</span><input v-model="drafts[a.id].name" class="field !py-2" maxlength="60" /></label>
                 <label><span class="label">Description</span><input v-model="drafts[a.id].description" class="field !py-2" maxlength="160" /></label>
                 <label>
