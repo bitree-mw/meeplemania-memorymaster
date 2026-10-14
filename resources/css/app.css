@@ -86,14 +86,29 @@
 }
 
 @layer base {
+    /* The page never scrolls sideways on a phone, whatever pokes past the edge (an animation,
+       a long word). clip, not hidden: hidden would turn these into scroll containers and break
+       the sticky header. Areas meant to scroll sideways (admin tables) keep their own overflow. */
+    html,
+    body {
+        overflow-x: clip;
+    }
+
     html {
         -webkit-tap-highlight-color: transparent;
+        -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
     }
 
     body {
         @apply bg-cream font-sans text-ink antialiased;
         min-height: 100dvh;
+    }
+
+    img,
+    svg,
+    video {
+        max-width: 100%;
     }
 
     h1, h2, h3, h4 {
