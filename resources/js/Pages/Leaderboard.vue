@@ -1,7 +1,7 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { Crown, Gamepad2, Info, MapPin, Search, Trophy, Zap } from 'lucide-vue-next';
+import { Crown, Gamepad2, Globe2, Info, Map as MapIcon, MapPin, Search, Trophy, Zap } from 'lucide-vue-next';
 import Avatar from '@/Components/Avatar.vue';
 import DistrictSelect from '@/Components/DistrictSelect.vue';
 import Movement from '@/Components/Movement.vue';
@@ -73,6 +73,16 @@ watch(() => props.district, (d) => (otherDistrict.value = d && d !== myDistrict.
 const show = (params) => router.get(url({ district: null, region: null, page: 1, ...params }), {}, { preserveScroll: true });
 watch(otherDistrict, (d) => d && d !== props.district && show({ district: d }));
 const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink');
+
+const areas = computed(() => [
+    { key: 'country', icon: Globe2, label: 'Country', detail: 'All of Malawi', params: {}, active: scope.value === 'country' },
+    myRegion.value && { key: 'region', icon: MapIcon, label: 'My region', detail: regionNames.value[myRegion.value]?.replace(' Region', ''), params: { region: myRegion.value }, active: props.region === myRegion.value },
+    myDistrict.value && { key: 'district', icon: MapPin, label: 'My district', detail: districtNames.value[myDistrict.value], params: { district: myDistrict.value }, active: props.district === myDistrict.value },
+].filter(Boolean));
+
+// Bring the selected game's pill into view in the scrolling strip.
+const gameStrip = ref(null);
+onMounted(() => gameStrip.value?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'center' }));
 </script>
 
 <template>
@@ -85,14 +95,13 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
             </span>
         </div>
 
-        <!-- Game selector -->
-        <!-- Wraps onto more rows on phones rather than scrolling sideways. -->
-        <nav class="py-2" aria-label="Game">
-            <div class="flex flex-wrap justify-center gap-2">
+        <!-- Game selector: one row of pills that scrolls sideways inside its own strip (the page never does). -->
+        <nav ref="gameStrip" class="-mx-4 snap-x overflow-x-auto overscroll-x-contain px-4 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Game">
+            <div class="mx-auto flex w-max gap-2">
                 <Link
                     :href="url({ game: 'all', board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
-                    class="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
+                    class="flex shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[13px] font-bold transition-all sm:gap-2 sm:px-4"
                     :class="game === 'all' ? 'bg-navy text-white shadow-[0_3px_0_#050b12]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
                     :aria-current="game === 'all' ? 'page' : undefined"
                 >
@@ -103,7 +112,7 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
                     :key="g.slug"
                     :href="url({ game: g.slug, board: null, duration: null, search: '', page: 1 })"
                     preserve-scroll
-                    class="flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1.5 font-display text-[12px] font-bold transition-all sm:gap-2 sm:px-4 sm:py-2 sm:text-[13px]"
+                    class="flex shrink-0 snap-start items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 font-display text-[13px] font-bold transition-all sm:gap-2 sm:px-4"
                     :class="game === g.slug ? 'bg-[var(--tile)] text-white shadow-[0_3px_0_var(--tile-deep)]' : 'bg-white text-ink-soft ring-1 ring-cream-high hover:text-ink'"
                     :style="colorVars(g.color)"
                     :aria-current="game === g.slug ? 'page' : undefined"
@@ -145,19 +154,26 @@ const pill = (active) => (active ? 'bg-navy text-white shadow-[0_3px_0_#050b12]'
         </div>
 
         <!-- Location filter -->
-        <div class="flex flex-wrap items-center justify-center gap-2 py-1" role="group" aria-label="Standings">
-            <button type="button" class="rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(scope === 'country')" :aria-pressed="scope === 'country'" @click="show({})">
-                Country-wide
-            </button>
-            <button v-if="myRegion" type="button" class="rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(region === myRegion)" :aria-pressed="region === myRegion" @click="show({ region: myRegion })">
-                My region <span class="opacity-70">· {{ regionNames[myRegion]?.replace(' Region', '') }}</span>
-            </button>
-            <button v-if="myDistrict" type="button" class="flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-[13px] font-bold transition-all" :class="pill(district === myDistrict)" :aria-pressed="district === myDistrict" @click="show({ district: myDistrict })">
-                <MapPin :size="14" aria-hidden="true" /> My district <span class="opacity-70">· {{ districtNames[myDistrict] }}</span>
-            </button>
-            <label class="w-52">
+        <div class="mx-auto w-full max-w-md space-y-2 py-1">
+            <!-- Three equal squares on one row: the whole country, my region, my district. -->
+            <div class="grid gap-2" :class="areas.length === 3 ? 'grid-cols-3' : areas.length === 2 ? 'grid-cols-2' : 'grid-cols-1'" role="group" aria-label="Standings">
+                <button
+                    v-for="a in areas"
+                    :key="a.key"
+                    type="button"
+                    class="flex aspect-square min-w-0 flex-col items-center justify-center gap-1.5 rounded-3xl p-2 text-center font-display transition-all sm:aspect-auto sm:py-3"
+                    :class="pill(a.active)"
+                    :aria-pressed="a.active"
+                    @click="show(a.params)"
+                >
+                    <component :is="a.icon" :size="22" :stroke-width="2.3" aria-hidden="true" />
+                    <span class="text-[13px] font-bold leading-tight">{{ a.label }}</span>
+                    <span class="w-full truncate text-[11px] font-semibold leading-tight opacity-70">{{ a.detail }}</span>
+                </button>
+            </div>
+            <label class="block">
                 <span class="sr-only">See another district</span>
-                <DistrictSelect v-model="otherDistrict" :districts="districts" :exclude="myDistrict ? [myDistrict] : []" placeholder="Other districts…" class="!rounded-full !py-2 text-[13px] font-bold" :class="otherDistrict ? '!border-navy' : ''" />
+                <DistrictSelect v-model="otherDistrict" :districts="districts" :exclude="myDistrict ? [myDistrict] : []" placeholder="Other districts…" class="!rounded-2xl !py-2.5 text-[13px] font-bold" :class="otherDistrict ? '!border-navy' : ''" />
             </label>
         </div>
 

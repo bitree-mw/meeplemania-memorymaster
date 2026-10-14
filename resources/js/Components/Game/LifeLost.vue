@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { Heart, HeartCrack, Play } from 'lucide-vue-next';
+import FloatingNext from '@/Components/Game/FloatingNext.vue';
 import MeepleMascot from '@/Components/Mascot/MeepleMascot.vue';
 import { useElementWidth } from '@/composables/useElementWidth';
 import { BOARDS } from '@/game/boards';
@@ -38,8 +39,11 @@ const { el: reviewEl, width: reviewWidth } = useElementWidth(300);
             <component :is="board" :spec="round.spec" phase="review" :round-state="roundState" :inputs="round.inputs" :timings="round.timings" review :box="{ w: Math.min(reviewWidth, 400), h: 260 }" />
         </div>
 
-        <button type="button" class="btn btn-primary btn-lg mt-5 w-full" autofocus @click="$emit('next')">
+        <!-- On phones the floating button below takes this role. -->
+        <button type="button" class="btn btn-primary btn-lg mt-5 hidden w-full sm:inline-flex" autofocus @click="$emit('next')">
             <Play :size="20" fill="currentColor" aria-hidden="true" /> Try a new puzzle (Level {{ round.spec.level }})
         </button>
+
+        <FloatingNext :level="round.spec.level" kind="retry" @click="$emit('next')" />
     </section>
 </template>

@@ -472,7 +472,8 @@ onBeforeUnmount(() => {
         </template>
 
         <!-- Results -->
-        <div v-else class="py-6">
+        <!-- Bottom room on phones for the floating Next button. -->
+        <div v-else class="pb-28 pt-6 sm:py-6">
             <LevelComplete v-if="phase === 'cleared'" :round="state.lastRound" :score="state.score" :unit="game.unit" :previous-best-level="bestLevel" @next="next" @restart="restart" />
             <LifeLost
                 v-else-if="phase === 'life_lost'"

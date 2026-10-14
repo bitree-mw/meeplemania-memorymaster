@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { PartyPopper, Play, RotateCcw, TrendingUp, Zap } from 'lucide-vue-next';
 import AnimatedNumber from '@/Components/AnimatedNumber.vue';
+import FloatingNext from '@/Components/Game/FloatingNext.vue';
 import MeepleMascot from '@/Components/Mascot/MeepleMascot.vue';
 import { seconds } from '@/game/format';
 
@@ -67,7 +68,8 @@ const isPersonalBest = computed(() => props.previousBestLevel !== null && level.
                 <PartyPopper :size="18" class="text-orange" aria-hidden="true" /> New personal best: level {{ level }}!
             </div>
 
-            <button type="button" class="btn btn-primary btn-lg mt-6 w-full" autofocus @click="$emit('next')">
+            <!-- On phones the floating button below takes this role. -->
+            <button type="button" class="btn btn-primary btn-lg mt-6 hidden w-full sm:inline-flex" autofocus @click="$emit('next')">
                 <Play :size="20" fill="currentColor" aria-hidden="true" />
                 Next Level (Level {{ level + 1 }})
             </button>
@@ -78,5 +80,7 @@ const isPersonalBest = computed(() => props.previousBestLevel !== null && level.
                 </button>
             </div>
         </section>
+
+        <FloatingNext :level="level + 1" kind="next" @click="$emit('next')" />
     </div>
 </template>
