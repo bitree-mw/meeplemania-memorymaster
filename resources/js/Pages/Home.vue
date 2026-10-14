@@ -146,7 +146,7 @@ const dailyLabel = computed(() => {
                     <h2 id="modes-title" class="text-2xl font-extrabold text-navy-deep">{{ game.name }}</h2>
                     <p class="text-[15px] font-medium text-ink-soft">{{ game.description }}</p>
                 </div>
-                <Link :href="`/leaderboard?game=${game.slug}`" class="hidden items-center gap-1 font-display text-sm font-bold text-[var(--tile-deep)] sm:flex" prefetch>Rankings <ArrowRight :size="16" /></Link>
+                <Link :href="`/leaderboard?game=${game.slug}`" class="hidden items-center gap-1 font-display text-sm font-bold text-[var(--tile-deep)] sm:flex" :prefetch="Boolean(me)">Rankings <ArrowRight :size="16" /></Link>
             </div>
 
             <div class="mt-5 grid gap-3 md:grid-cols-3">
@@ -213,7 +213,7 @@ const dailyLabel = computed(() => {
                 <span class="size-2 rounded-full bg-emerald motion-safe:animate-pulse" aria-hidden="true" />
                 {{ fmt(live.online) }} online · {{ fmt(live.playing) }} playing now
             </span>
-            <Link href="/leaderboard" class="inline-flex items-center gap-1.5 hover:text-navy" prefetch><Trophy :size="16" /> Leaderboards</Link>
+            <Link href="/leaderboard" class="inline-flex items-center gap-1.5 hover:text-navy" :prefetch="Boolean(me)"><Trophy :size="16" /> Leaderboards</Link>
             <Link href="/rules" class="inline-flex items-center gap-1.5 hover:text-navy" prefetch>How to play</Link>
         </div>
     </div>

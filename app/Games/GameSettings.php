@@ -21,7 +21,7 @@ class GameSettings
 
     public const PLATFORM = 'platform';
 
-    public const PLATFORM_SECTIONS = ['daily', 'fair_play', 'streaks', 'presence'];
+    public const PLATFORM_SECTIONS = ['daily', 'fair_play', 'streaks', 'presence', 'guests'];
 
     public const GAME_SECTIONS = ['classic', 'timed', 'once', 'scoring', 'game'];
 

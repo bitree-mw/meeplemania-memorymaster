@@ -6,6 +6,7 @@ use App\Games\Board;
 use App\Games\GameRegistry;
 use App\Games\LeaderboardService;
 use App\Platform\Districts;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -13,8 +14,13 @@ use Inertia\Response;
 
 class LeaderboardController extends Controller
 {
-    public function __invoke(Request $request, LeaderboardService $leaderboards, GameRegistry $registry): Response
+    public function __invoke(Request $request, LeaderboardService $leaderboards, GameRegistry $registry): Response|RedirectResponse
     {
+        // The Hall of Fame is for members only.
+        if (! $request->user()) {
+            return redirect()->guest('/login')->with('error', 'Sign in or create an account to see the Hall of Fame.');
+        }
+
         [$board, $search, $page] = self::resolveBoard($request, $registry);
 
         $leaderboards->ensureSnapshot($board);

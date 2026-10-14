@@ -6,6 +6,8 @@ use App\Games\DailyChallengeService;
 use App\Games\GameRegistry;
 use App\Games\StatisticsService;
 use App\Models\GameMode;
+use App\Platform\Device;
+use App\Platform\GuestPlays;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,6 +22,7 @@ class ArenaController extends Controller
         GameRegistry $registry,
         StatisticsService $statistics,
         DailyChallengeService $daily,
+        GuestPlays $guests,
     ): Response|RedirectResponse {
         $gameModel = $registry->game($game);
         $gameMode = $gameModel ? $registry->mode($gameModel, $mode) : null;
@@ -30,6 +33,10 @@ class ArenaController extends Controller
 
         if ($gameMode->requires_account && ! $user) {
             return redirect()->guest('/login')->with('error', 'Sign in to take part in Try Once.');
+        }
+
+        if (! $user && $guests->exhausted(Device::id($request))) {
+            return redirect()->guest('/register')->with('error', $guests->limitMessage());
         }
 
         $durations = config('games.platform.timed_durations');

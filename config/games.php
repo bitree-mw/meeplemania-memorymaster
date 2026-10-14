@@ -61,6 +61,10 @@ return [
             'heartbeat_seconds' => 45,
             'online_threshold_seconds' => 120,
         ],
+        'guests' => [
+            'nudge_after_plays' => 10,
+            'max_plays' => 20,
+        ],
     ],
 
     // Display order = array order.

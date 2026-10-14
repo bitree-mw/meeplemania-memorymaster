@@ -168,17 +168,19 @@ class LeaderboardTest extends TestCase
         $this->assertNull($rows[0]['movement'], 'Last season’s ranks are not compared with');
     }
 
-    public function test_the_page_is_public_and_shows_the_viewers_position(): void
+    public function test_the_page_is_for_members_and_shows_the_viewers_position(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
         $this->playTo('meeple-pairs', 2);
         auth()->logout();
 
-        $this->get('/leaderboard?game=meeple-pairs&board=level')->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->component('Leaderboard')->has('podium', 1)->where('me', null)->where('board', 'level'));
+        $this->get('/leaderboard?game=meeple-pairs&board=level')->assertRedirect('/login')->assertSessionHas('error');
 
-        $this->actingAs($user)->get('/leaderboard')->assertOk()
+        $this->actingAs($user)->get('/leaderboard?game=meeple-pairs&board=level')->assertOk()
+            ->assertInertia(fn (Assert $page) => $page->component('Leaderboard')->has('podium', 1)->where('board', 'level'));
+
+        $this->get('/leaderboard')->assertOk()
             ->assertInertia(fn (Assert $page) => $page->where('me.position', 1)->where('game', 'all')->where('board', 'all_time'));
 
         $this->get('/leaderboard?game=meeple-pairs&board=timed&duration=45')->assertOk()

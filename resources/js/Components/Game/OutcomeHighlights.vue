@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import { PartyPopper } from 'lucide-vue-next';
+import GuestPlaysNotice from '@/Components/Game/GuestPlaysNotice.vue';
 import { ICONS } from '@/game/palette';
 
 /** Personal bests, rank movement and newly unlocked achievements after a ranked run. */
@@ -25,9 +26,7 @@ const bests = computed(() => (props.outcome?.personal_bests ?? []).map((b) => la
 
 <template>
     <div class="space-y-2.5">
-        <p v-if="isGuest" class="rounded-2xl bg-sky-soft px-4 py-3 text-sm font-medium text-navy-soft">
-            Playing as a guest — <a href="/register" class="font-bold text-navy underline">create a free account</a> to save scores, earn badges and enter the rankings.
-        </p>
+        <GuestPlaysNotice v-if="isGuest" />
         <p v-else-if="!isRanked" class="rounded-2xl bg-cream-mid px-4 py-3 text-sm font-medium text-ink-soft">
             Practice run — this result is not ranked.
         </p>

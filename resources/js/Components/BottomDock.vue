@@ -7,7 +7,8 @@ const page = usePage();
 
 const items = computed(() => [
     { label: 'Play', href: '/', icon: Gamepad2, active: ['Home', 'Arena'].includes(page.component) },
-    { label: 'Ranks', href: '/leaderboard', icon: Trophy, active: page.component === 'Leaderboard' },
+    // Members only: guests are sent to sign in, so don't prefetch it for them.
+    { label: 'Ranks', href: '/leaderboard', icon: Trophy, active: page.component === 'Leaderboard', prefetch: Boolean(page.props.auth.user) },
     {
         label: 'Profile',
         href: page.props.auth.user ? '/profile' : '/login',
@@ -28,7 +29,7 @@ const items = computed(() => [
                 v-for="item in items"
                 :key="item.label"
                 :href="item.href"
-                prefetch
+                :prefetch="item.prefetch ?? true"
                 class="flex flex-1 flex-col items-center gap-0.5 rounded-full px-2 py-2 font-display text-[11px] font-bold transition-colors"
                 :class="item.active ? 'bg-amber text-navy-deep shadow-[0_4px_0_#d97706]' : 'text-ink-soft hover:bg-cream-mid hover:text-ink'"
                 :aria-current="item.active ? 'page' : undefined"

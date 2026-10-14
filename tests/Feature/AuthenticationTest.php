@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Platform\Device;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -21,8 +22,9 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
         $this->assertDatabaseHas('users', ['username' => 'MeepleFan', 'avatar' => 'dice', 'role' => 'player', 'district' => 'lilongwe']);
 
+        // From another device: this one is still signed in to MeepleFan.
         auth()->logout();
-        $this->post('/register', [
+        $this->withCookie(Device::COOKIE, str_repeat('x', 40))->post('/register', [
             'username' => 'MeepleFan',
             'email' => 'other@example.com',
             'password' => 'secret-password-1',
@@ -113,7 +115,7 @@ class AuthenticationTest extends TestCase
     {
         $this->get('/')->assertOk();
         $this->get('/rules')->assertOk();
-        $this->get('/leaderboard')->assertOk();
+        $this->get('/leaderboard')->assertRedirect('/login'); // members only
 
         foreach (self::GAMES as $game) {
             $this->get("/play/{$game}/classic")->assertOk();

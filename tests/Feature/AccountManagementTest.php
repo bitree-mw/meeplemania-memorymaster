@@ -200,8 +200,8 @@ class AccountManagementTest extends TestCase
     {
         $this->get('/register')->assertOk();
         $this->get('/forgot-password')->assertOk();
-        $this->get('/leaderboard?district=mzimba')->assertOk();
         $this->actingAs(User::factory()->create(['district' => 'mzimba']))->get('/profile/edit')->assertOk();
+        $this->get('/leaderboard?district=mzimba')->assertOk();
     }
 
     public function test_admins_can_create_achievements(): void

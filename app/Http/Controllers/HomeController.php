@@ -30,11 +30,12 @@ class HomeController extends Controller
             ? DailyChallengeAttempt::where('user_id', $user->id)->whereIn('daily_challenge_id', $challenges->pluck('id'))->with('session')->get()->keyBy('daily_challenge_id')
             : collect();
 
-        $games = collect($registry->catalogue())->map(function (array $game) use ($stats, $challenges, $attempts, $leaderboards, $registry) {
+        $games = collect($registry->catalogue())->map(function (array $game) use ($user, $stats, $challenges, $attempts, $leaderboards, $registry) {
             $s = $stats->get($game['id']);
             $challenge = $challenges->get($game['slug']);
             $attempt = $attempts->get($challenge->id);
-            $leader = $leaderboards->podium(new Board($registry->game($game['slug']), 'once'))[0] ?? null;
+            // Rankings are for members only.
+            $leader = $user ? ($leaderboards->podium(new Board($registry->game($game['slug']), 'once'))[0] ?? null) : null;
 
             return $game + [
                 'best' => [

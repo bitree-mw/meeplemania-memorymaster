@@ -6,6 +6,7 @@ import AnimatedNumber from '@/Components/AnimatedNumber.vue';
 import CoachMeeple from '@/Components/Game/CoachMeeple.vue';
 import Confetti from '@/Components/Game/Confetti.vue';
 import GameOver from '@/Components/Game/GameOver.vue';
+import GuestPlaysNotice from '@/Components/Game/GuestPlaysNotice.vue';
 import LevelComplete from '@/Components/Game/LevelComplete.vue';
 import LifeLost from '@/Components/Game/LifeLost.vue';
 import RunSummary from '@/Components/Game/RunSummary.vue';
@@ -115,8 +116,17 @@ function burst() {
 }
 
 function refreshHeader() {
-    if (!isGuest.value) router.reload({ only: ['player'] });
+    router.reload({ only: [isGuest.value ? 'guestPlays' : 'player'] });
 }
+
+// A guest who has used every free game can't start another: reloading the page
+// lets the server send them to sign-up with its message.
+watch(
+    () => state.error?.code,
+    (code) => {
+        if (code === 'guest_limit') router.reload();
+    },
+);
 
 function onCue(cue) {
     if (slug === 'memory-master') {
@@ -419,9 +429,7 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
 
-                <p v-if="isGuest && phase === 'idle'" class="text-center text-xs font-medium text-outline">
-                    Playing as a guest. <Link href="/register" class="font-bold text-amber-deep underline">Create an account</Link> to save scores and rank.
-                </p>
+                <GuestPlaysNotice v-if="isGuest && phase === 'idle'" variant="line" />
             </div>
         </template>
 

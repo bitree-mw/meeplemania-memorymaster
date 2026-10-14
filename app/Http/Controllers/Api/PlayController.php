@@ -7,17 +7,18 @@ use App\Games\PlayService;
 use App\Http\Controllers\Controller;
 use App\Models\GameMode;
 use App\Models\GameSession;
+use App\Platform\Device;
+use App\Platform\GuestPlays;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class PlayController extends Controller
 {
     public function __construct(private PlayService $play, private GameRegistry $registry) {}
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request, GuestPlays $guests): JsonResponse
     {
         $data = $request->validate([
             'game' => ['required', 'string', Rule::in($this->registry->slugs())],
@@ -28,14 +29,11 @@ class PlayController extends Controller
         $game = $this->registry->game($data['game']);
         abort_unless($game && ($mode = $this->registry->mode($game, $data['mode'])), 404);
 
-        $guestToken = null;
-        if (! $request->user()) {
-            $guestToken = $request->session()->get('mm_guest_token');
+        // Guests' games belong to their device, which also carries their play allowance.
+        $guestToken = $request->user() ? null : Device::id($request);
 
-            if (! $guestToken) {
-                $guestToken = Str::random(40);
-                $request->session()->put('mm_guest_token', $guestToken);
-            }
+        if ($guestToken && $guests->exhausted($guestToken)) {
+            return response()->json(['message' => $guests->limitMessage(), 'code' => 'guest_limit'], 403);
         }
 
         return response()->json($this->play->start($game, $mode, $request->user(), $guestToken, $data['duration'] ?? null), 201);

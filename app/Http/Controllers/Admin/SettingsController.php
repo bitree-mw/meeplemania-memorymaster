@@ -93,6 +93,10 @@ class SettingsController extends Controller
                     $n('heartbeat_seconds', 'Heartbeat interval', 30, 60, 's'),
                     $n('online_threshold_seconds', 'Online threshold', 60, 600, 's'),
                 ]],
+                ['key' => 'guests', 'title' => 'Guest play', 'description' => 'Visitors without an account can play a limited number of games on each device before they must sign up. A game counts once a round has been played.', 'fields' => [
+                    $n('nudge_after_plays', 'Ask guests to sign up after', 1, 100, 'games'),
+                    $n('max_plays', 'Require an account after', 1, 200, 'games'),
+                ]],
             ];
         }
 

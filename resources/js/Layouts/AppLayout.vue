@@ -24,7 +24,8 @@ onMounted(() => start(page.props.presence?.heartbeat_seconds, page.props.online)
 
 const nav = computed(() => [
     { label: 'Arena', href: '/', active: ['Home', 'Arena'].includes(page.component) },
-    { label: 'Hall of Fame', href: '/leaderboard', active: page.component === 'Leaderboard' },
+    // Members only: guests are sent to sign in, so don't prefetch it for them.
+    { label: 'Hall of Fame', href: '/leaderboard', active: page.component === 'Leaderboard', prefetch: Boolean(user.value) },
     { label: 'Rulebook', href: '/rules', active: page.component === 'Rules' },
 ]);
 </script>
@@ -43,7 +44,7 @@ const nav = computed(() => [
                         v-for="item in nav"
                         :key="item.label"
                         :href="item.href"
-                        prefetch
+                        :prefetch="item.prefetch ?? true"
                         class="rounded-full px-4 py-1.5 font-display text-[13px] font-bold tracking-wide transition-all"
                         :class="item.active ? 'bg-white text-navy-deep shadow-sm' : 'text-ink-soft hover:text-ink'"
                     >

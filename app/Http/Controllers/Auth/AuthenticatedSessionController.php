@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Platform\AdminActivity;
+use App\Platform\Device;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function __construct(private AdminActivity $activity) {}
+    public function __construct(private AdminActivity $activity, private Device $device) {}
 
     public function create(): Response
     {
@@ -29,6 +30,7 @@ class AuthenticatedSessionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->authenticate($request, adminArea: false);
+        $this->device->claim($request);
 
         return redirect()->intended('/');
     }
@@ -46,6 +48,8 @@ class AuthenticatedSessionController extends Controller
 
             throw ValidationException::withMessages(['login' => 'This account does not have admin access.']);
         }
+
+        $this->device->claim($request);
 
         return redirect()->intended('/admin');
     }
@@ -87,6 +91,14 @@ class AuthenticatedSessionController extends Controller
             throw ValidationException::withMessages(['login' => 'This account has been disabled.']);
         }
 
+        // One account per device at a time: switching needs a sign-out first.
+        $holder = $this->device->signedInUserId($request);
+        if ($holder !== null && $holder !== $user->id) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages(['login' => Device::BUSY_MESSAGE]);
+        }
+
         $request->session()->regenerate();
 
         if ($user->isAdmin()) {
@@ -102,6 +114,7 @@ class AuthenticatedSessionController extends Controller
             $this->activity->record('logout', 'Signed out', $request->user());
         }
 
+        $this->device->release($request);
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
